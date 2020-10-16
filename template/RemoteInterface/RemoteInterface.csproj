@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Oxygen.Client\Oxygen.Client.ServerSymbol\Oxygen.Client.ServerSymbol.csproj" />
+  </ItemGroup>
+
+</Project>

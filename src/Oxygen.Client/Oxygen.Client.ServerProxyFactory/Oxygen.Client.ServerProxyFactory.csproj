@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Oxygen\Oxygen.Common\Oxygen.Common.csproj" />
+    <ProjectReference Include="..\..\Oxygen\Oxygen.ProxyGenerator\Oxygen.ProxyGenerator.csproj" />
+  </ItemGroup>
+
+</Project>
