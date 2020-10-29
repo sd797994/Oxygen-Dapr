@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Oxygen.Server.Kestrel.Implements
 {
-    public class HttpMessageHandler : IMessageHandler
+    internal class HttpMessageHandler : IMessageHandler
     {
         private readonly ISerialize serialize;
         public HttpMessageHandler(ISerialize serialize)

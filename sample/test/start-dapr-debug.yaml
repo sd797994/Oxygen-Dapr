@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oxygen-dapr-sample-test
+  labels:
+    app: oxygen-dapr-sample-test
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oxygen-dapr-sample-test
+  minReadySeconds: 5 
+  strategy: 
+    type: RollingUpdate 
+    rollingUpdate:
+      maxUnavailable: 1 
+      maxSurge: 1
+  template: 
+    metadata:
+      labels: 
+        app: oxygen-dapr-sample-test
+    spec:
+      containers:
+        - name: web
+          image: oxygen-dapr-sample-server:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /app
+              name: v1
+            # - mountPath: /remote_debugger:rw
+              # name: v2
+            # - mountPath: /root/.vs-debugger
+              # name: v3
+      volumes:
+        - name: v1
+          hostPath:
+            path: /e/dotnet_project/Oxygen-Dapr/sample/Server/bin/Debug/netcoreapp3.1
+        # - name: v2
+          # hostPath:
+            # path: /c/Users/Administrator/vsdbg/vs2017u5
+        # - name: v3
+          # hostPath:
+            # path: /e/dockerdebugger/.vs-debugger

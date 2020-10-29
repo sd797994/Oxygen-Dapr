@@ -1,0 +1,140 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oxygen-dapr-sample-client
+  labels:
+    app: oxygen-dapr-sample-client
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oxygen-dapr-sample-client
+  minReadySeconds: 5 
+  strategy: 
+    type: RollingUpdate 
+    rollingUpdate:
+      maxUnavailable: 1 
+      maxSurge: 1
+  template: 
+    metadata:
+      labels: 
+        app: oxygen-dapr-sample-client
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "callservice"
+        dapr.io/port: "80"
+    spec:
+      containers:
+        - name: web
+          image: oxygen-dapr-sample-client:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /app
+              name: v1
+            - mountPath: /remote_debugger:rw
+              name: v2
+            - mountPath: /root/.vs-debugger
+              name: v3
+      volumes:
+        - name: v1
+          hostPath:
+            path: /e/dotnet_project/Oxygen-Dapr/sample/Client/pub
+        - name: v2
+          hostPath:
+            path: /c/Users/Administrator/vsdbg/vs2017u5
+        - name: v3
+          hostPath:
+            path: /e/dockerdebugger/.vs-debugger
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oxygen-dapr-sample-server
+  labels:
+    app: oxygen-dapr-sample-server
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oxygen-dapr-sample-server
+  minReadySeconds: 5 
+  strategy: 
+    type: RollingUpdate 
+    rollingUpdate:
+      maxUnavailable: 1 
+      maxSurge: 1
+  template: 
+    metadata:
+      labels: 
+        app: oxygen-dapr-sample-server
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/id: "testservice"
+        dapr.io/port: "80"
+    spec:
+      containers:
+        - name: web
+          image: oxygen-dapr-sample-server:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /app
+              name: v1
+            - mountPath: /remote_debugger:rw
+              name: v2
+            - mountPath: /root/.vs-debugger
+              name: v3
+      volumes:
+        - name: v1
+          hostPath:
+            path: /e/dotnet_project/Oxygen-Dapr/sample/Server/pub
+        - name: v2
+          hostPath:
+            path: /c/Users/Administrator/vsdbg/vs2017u5
+        - name: v3
+          hostPath:
+            path: /e/dockerdebugger/.vs-debugger
+---
+apiVersion: v1
+kind: Service 
+metadata:
+  name: oxygen-dapr-sample-server
+spec:
+  selector:
+    app: oxygen-dapr-sample-server
+  ports:
+  - protocol: TCP
+    port: 80 
+    targetPort: 80
+---
+apiVersion: v1
+kind: Service 
+metadata:
+  name: oxygen-dapr-sample-client
+spec:
+  selector:
+    app: oxygen-dapr-sample-client
+  ports:
+  - protocol: TCP
+    port: 80 
+    targetPort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: default
+  name: oxygen-dapr
+  annotations: 
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: api.oxygen-dapr.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: nginx-ingress-dapr
+          servicePort: 80

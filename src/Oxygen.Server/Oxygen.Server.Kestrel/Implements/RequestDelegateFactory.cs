@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Oxygen.Server.Kestrel.Implements
 {
-    public static class RequestDelegateFactory
+    internal static class RequestDelegateFactory
     {
         internal static List<BaseRequestDelegate> CreateDelegate(ILogger logger, IMessageHandler messageHandler)
         {
@@ -22,7 +22,6 @@ namespace Oxygen.Server.Kestrel.Implements
                 var attr = ReflectionHelper.GetAttributeProperyiesByType<RemoteServiceAttribute>(x);
                 ReflectionHelper.GetMethodByFilter(x, typeof(RemoteFuncAttribute)).ToList().ForEach(y =>
                 {
-
                     var requestDelegate = CreateRequestDelegate(x, attr?.ServerName ?? x.Name, y, logger, messageHandler);
                     if (requestDelegate != null)
                         result.Add(requestDelegate);

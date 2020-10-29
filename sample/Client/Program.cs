@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Oxygen.IocModule;
+using RemoteInterface;
 using System.Threading.Tasks;
 
 
@@ -20,6 +21,8 @@ namespace Client
             {
                 //注入oxygen依赖
                 builder.RegisterOxygenModule();
+                //注入测试demo
+                builder.RegisterType<CallServiceImpl>().As<ICallService>().InstancePerLifetimeScope();
             })
             .ConfigureLogging((hostingContext, logging) => {
                 //logging.AddConsole();
@@ -27,9 +30,7 @@ namespace Client
             .ConfigureServices((context, services) =>
             {
                 //注册成为oxygen服务节点
-                services.StartOxygenServer(81);
-                //注册测试用customhostservice
-                services.AddHostedService<CustomerHostService>();
+                services.StartOxygenServer();
                 services.AddAutofac();
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory());

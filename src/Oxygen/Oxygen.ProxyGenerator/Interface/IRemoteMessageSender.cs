@@ -7,6 +7,6 @@ namespace Oxygen.ProxyGenerator.Interface
 {
     internal interface IRemoteMessageSender
     {
-        Task<T> SendMessage<T>(string serverName, object input) where T : class;
+        Task<T> SendMessage<T>(string hostName, string serverName, object input) where T : class;
     }
 }

@@ -8,7 +8,7 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Oxygen.Common.Implements
 {
-    public class ConsoleLog : Interface.ILogger
+    internal class ConsoleLog : Interface.ILogger
     {
 
         private readonly ILogger _logger;

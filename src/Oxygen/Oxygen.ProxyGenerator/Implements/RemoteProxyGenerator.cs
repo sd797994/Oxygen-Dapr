@@ -5,6 +5,7 @@ using Oxygen.ProxyGenerator.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 
@@ -29,7 +30,7 @@ namespace Oxygen.ProxyGenerator.Implements
                 {
                     var proxyInstance = ThisType.GetMethod(nameof(CreateProxyInstance)).MakeGenericMethod(x).Invoke(ThisObj, null) as RemoteDispatchProxyBase;
                     builder.RegisterInstance(proxyInstance).As(x);
-                    proxyInstance.InitRemoteRouters(attr.ServerName ?? x.Name, ReflectionHelper.GetMethodByFilter(x, typeof(RemoteFuncAttribute)));
+                    proxyInstance.InitRemoteRouters(attr.HostName, attr.ServerName ?? x.Name, ReflectionHelper.GetMethodByFilter(x, typeof(RemoteFuncAttribute)));
                     Proxies.Add(proxyInstance);
                 }
             });

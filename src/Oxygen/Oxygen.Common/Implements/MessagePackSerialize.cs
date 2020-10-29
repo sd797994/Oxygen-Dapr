@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Oxygen.Common.Implements
 {
-    public class MessagePackSerialize : ISerialize
+    internal class MessagePackSerialize : ISerialize
     {
         private readonly ILogger _logger;
         public static Lazy<bool> loadConfig = new Lazy<bool>(() => {

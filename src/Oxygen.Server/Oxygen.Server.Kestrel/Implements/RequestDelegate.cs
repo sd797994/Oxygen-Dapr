@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Oxygen.Client.ServerSymbol;
 using Oxygen.Common.Interface;
 using Oxygen.ProxyGenerator.Implements;
 using Oxygen.Server.Kestrel.Interface;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Oxygen.Server.Kestrel.Implements
 {
-    public class RequestDelegate<Tin, Tout> : BaseRequestDelegate where Tin : class, new() where Tout : class
+    internal class RequestDelegate<Tin, Tout> : BaseRequestDelegate where Tin : class, new() where Tout : class
     {
         private readonly ILogger logger;
         private readonly IMessageHandler messageHandler;
@@ -23,20 +24,19 @@ namespace Oxygen.Server.Kestrel.Implements
             this.logger = logger;
             this.messageHandler = messageHandler;
         }
-        public Func<Tin, Task<Tout>> MethodDelegate { get; set; }
-
+        internal Func<Tin, Task<Tout>> MethodDelegate { get; set; }
         internal override async Task Excute(HttpContext ctx)
         {
             byte[] result = default;
             ctx.Response.ContentType = "application/json";
             var messageType = MessageType.Json;
-            if (ctx.Request.ContentType== "application/x-msgpack")
-            {
-                ctx.Response.ContentType = "application/x-msgpack";
-                messageType = MessageType.MessagePack;
-            }
             try
             {
+                if (ctx.Request.ContentType == "application/x-msgpack")
+                {
+                    ctx.Response.ContentType = "application/x-msgpack";
+                    messageType = MessageType.MessagePack;
+                }
                 var messageobj = await messageHandler.ParseMessage<Tin>(ctx, messageType);
                 var localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(messageobj, MethodDelegate);
                 if (localCallbackResult != null)

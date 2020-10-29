@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Oxygen.Server.Kestrel.Implements
 {
-    public class KestrelServerHandler : IServerHandler
+    internal class KestrelServerHandler : IServerHandler
     {
         private readonly ILogger logger;
         private readonly IMessageHandler messageHandler;
@@ -21,7 +21,16 @@ namespace Oxygen.Server.Kestrel.Implements
         }
         public void BuildHandler(IApplicationBuilder app)
         {
-            RequestDelegateFactory.CreateDelegate(logger, messageHandler).ForEach(x => app.Map(x.Path, handle => handle.MapWhen(p => p.Request.Method.Equals("POST"), builder => builder.Run(x.Excute))));
+            RequestDelegateFactory.CreateDelegate(logger, messageHandler).ForEach(x =>
+            {
+                app.Map(x.Path, handle =>
+                {
+                    handle.MapWhen(p => p.Request.Method.Equals("POST"), builder =>
+                    {
+                        builder.Run(x.Excute);
+                    });
+                });
+            });
         }
     }
 }

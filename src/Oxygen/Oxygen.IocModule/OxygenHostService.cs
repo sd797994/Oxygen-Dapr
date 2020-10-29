@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Oxygen.IocModule
 {
-    public class OxygenHostService : IHostedService
+    internal class OxygenHostService : IHostedService
     {
         private readonly IServer.IServer server;
         public OxygenHostService(IServer.IServer server, ILifetimeScope lifetimeScope)

@@ -18,7 +18,7 @@ namespace Oxygen.ProxyGenerator.Implements
             var router = RemoteRouters.FirstOrDefault(x => x.Key.Equals(targetMethod.Name));
             if (router != null)
             {
-                return router.SenderDelegate.Excute(router.RouterName, args[0]);
+                return router.SenderDelegate.Excute(router.HostName, router.RouterName, args[0]);
             }
             else
             {
@@ -28,7 +28,7 @@ namespace Oxygen.ProxyGenerator.Implements
     }
     public abstract class RemoteDispatchProxyBase : DispatchProxy
     {
-        internal void InitRemoteRouters(string RouterName, IEnumerable<MethodInfo> remoteMethods)
+        internal void InitRemoteRouters(string hostName, string routerName, IEnumerable<MethodInfo> remoteMethods)
         {
             RemoteRouters = new List<RemoteRouter>();
             remoteMethods.ToList().ForEach(x =>
@@ -36,7 +36,8 @@ namespace Oxygen.ProxyGenerator.Implements
                 RemoteRouters.Add(new RemoteRouter()
                 {
                     Key = x.Name,
-                    RouterName = $"/{RouterName}/{x.Name}".ToLower(),
+                    HostName = hostName,
+                    RouterName = $"/{routerName}/{x.Name}".ToLower(),
                     InputType = x.GetParameters()[0].ParameterType,
                     MethodInfo = typeof(IRemoteMessageSender).GetMethod("SendMessage").MakeGenericMethod(x.ReturnParameter.ParameterType.GenericTypeArguments[0]),
                 });
@@ -49,6 +50,7 @@ namespace Oxygen.ProxyGenerator.Implements
         protected class RemoteRouter
         {
             internal string Key { get; set; }
+            internal string HostName { get; set; }
             internal string RouterName { get; set; }
             internal Type InputType { get; set; }
             internal MethodInfo MethodInfo { get; set; }

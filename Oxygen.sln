@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Oxygen.Server", "Oxygen.Ser
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Oxygen.Mesh", "Oxygen.Mesh", "{540472F6-CDDB-4E09-886E-BE16EEC65A00}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "template", "template", "{F8BAEF85-9B04-4D46-9E57-52DF40CC1185}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{F8BAEF85-9B04-4D46-9E57-52DF40CC1185}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.Server.Kestrel", "src\Oxygen.Server\Oxygen.Server.Kestrel\Oxygen.Server.Kestrel.csproj", "{838884C4-2D6C-4AF6-8EED-EE27947B7FE2}"
 EndProject
@@ -27,11 +27,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.Client.ServerSymbol"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.Mesh.Dapr", "src\Oxygen.Mesh\Oxygen.Mesh.Dapr\Oxygen.Mesh.Dapr.csproj", "{F4748E0B-C033-4293-BCB1-7370A55BB02D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteInterface", "template\RemoteInterface\RemoteInterface.csproj", "{B6E9A444-7A28-4964-83E5-F84CC1F6E945}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteInterface", "sample\RemoteInterface\RemoteInterface.csproj", "{B6E9A444-7A28-4964-83E5-F84CC1F6E945}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "template\Client\Client.csproj", "{3FB24A03-E88D-4FBC-B601-555D59389931}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "sample\Client\Client.csproj", "{3FB24A03-E88D-4FBC-B601-555D59389931}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "template\Server\Server.csproj", "{6C5E0E28-5B9B-4AB9-A122-27DF9F4C2333}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "sample\Server\Server.csproj", "{6C5E0E28-5B9B-4AB9-A122-27DF9F4C2333}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.IocModule", "src\Oxygen\Oxygen.IocModule\Oxygen.IocModule.csproj", "{5BE04D5E-F3C2-4043-A472-D1CE61C795A6}"
 EndProject

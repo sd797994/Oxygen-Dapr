@@ -1,8 +1,10 @@
-﻿using Oxygen.Common.Implements;
+﻿using DotNetty.Transport.Bootstrapping;
+using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
 using Oxygen.ProxyGenerator.Interface;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -15,20 +17,22 @@ namespace Oxygen.ProxyGenerator.Implements
         private readonly IHttpClientFactory httpClientFactory;
         private readonly ISerialize serialize;
         private readonly ILogger logger;
+        static HttpClient HttpClient;
         public RemoteMessageSender(IHttpClientFactory httpClientFactory, ISerialize serialize, ILogger logger)
         {
             this.httpClientFactory = httpClientFactory;
             this.serialize = serialize;
             this.logger = logger;
+            HttpClient = HttpClient ?? httpClientFactory.CreateClient();
+            HttpClient.DefaultRequestHeaders.Connection.Add("keep-alive");
         }
-        async Task<T> IRemoteMessageSender.SendMessage<T>(string serverName, object input) where T : class
+        async Task<T> IRemoteMessageSender.SendMessage<T>(string hostName, string serverName, object input) where T : class
         {
             T result = default;
             try
             {
-                var taskId = Guid.NewGuid();
-                var sendMessage = BuildMessage(serverName, input);
-                var responseMessage = await httpClientFactory.CreateClient().SendAsync(sendMessage);
+                var sendMessage = BuildMessage(hostName, serverName, input);
+                var responseMessage = await HttpClient.SendAsync(sendMessage);
                 if (responseMessage.IsSuccessStatusCode)
                 {
                     return ReceiveMessage<T>(await responseMessage.Content.ReadAsByteArrayAsync());
@@ -44,9 +48,9 @@ namespace Oxygen.ProxyGenerator.Implements
             }
             return result;
         }
-        internal HttpRequestMessage BuildMessage(string url, object data)
+        internal HttpRequestMessage BuildMessage(string host,string url, object data)
         {
-            url = $"http://127.0.0.1{url}";
+            url = $"http://localhost:3500/v1.0/invoke/{host}/method{url}";
             var request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
             var bytedata = serialize.Serializes(data);
             request.Content = new ByteArrayContent(bytedata);

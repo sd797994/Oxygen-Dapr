@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Oxygen.Server.Kestrel.Implements
 {
-    public abstract class BaseRequestDelegate
+    internal abstract class BaseRequestDelegate
     {
         internal PathString Path { get; set; }
         internal abstract Task Excute(HttpContext ctx);

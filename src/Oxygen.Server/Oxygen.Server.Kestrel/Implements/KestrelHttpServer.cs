@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 
 namespace Oxygen.Server.Kestrel.Implements
 {
-    public class KestrelHttpServer : IServer.IServer
+    internal class KestrelHttpServer : IServer.IServer
     {
         private readonly ILogger logger;
         private readonly IServerHandler serverHandler;
-        public IWebHost Host { get; private set; }
+        private IWebHost Host { get; set; }
         public KestrelHttpServer(ILogger logger, IServerHandler serverHandler)
         {
             this.logger = logger;

@@ -14,7 +14,7 @@ namespace Oxygen.Common.Implements
     /// </summary>
     /// <typeparam name="TSource"></typeparam>
     /// <typeparam name="TTarget"></typeparam>
-    public static class Mapper<TSource, TTarget> where TSource : class where TTarget : class
+    internal static class Mapper<TSource, TTarget> where TSource : class where TTarget : class
     {
         private static Func<TSource, TTarget> MapFunc { get; set; }
 
