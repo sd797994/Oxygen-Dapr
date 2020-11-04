@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Oxygen.Client\Oxygen.Client.ServerProxyFactory\Oxygen.Client.ServerProxyFactory.csproj" />
     <ProjectReference Include="..\..\Oxygen.Client\Oxygen.Client.ServerSymbol\Oxygen.Client.ServerSymbol.csproj" />
+    <ProjectReference Include="..\..\Oxygen.Mesh\Oxygen.Mesh.Dapr\Oxygen.Mesh.Dapr.csproj" />
     <ProjectReference Include="..\..\Oxygen.Server\Oxygen.IServer\Oxygen.IServer.csproj" />
     <ProjectReference Include="..\Oxygen.Common\Oxygen.Common.csproj" />
     <ProjectReference Include="..\Oxygen.ProxyGenerator\Oxygen.ProxyGenerator.csproj" />

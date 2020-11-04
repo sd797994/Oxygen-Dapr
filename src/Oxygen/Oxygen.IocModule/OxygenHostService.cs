@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Hosting;
 using Oxygen.Common.Implements;
+using Oxygen.Mesh.Dapr;
 using Oxygen.ProxyGenerator.Implements;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace Oxygen.IocModule
         }
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await server.OpenServer(null, HostBuilderExtension.Port);
+            await server.OpenServer((x) => ActorServiceFactory.RegisterActorService(x), HostBuilderExtension.Port);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

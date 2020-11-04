@@ -23,6 +23,7 @@ namespace Client
         }
         public async Task<MultipleTestOutput> MultipleTest(MultipleTestInput input)
         {
+            Oxygen.Common.Implements.OxygenIocContainer.Resolve<IHelloService>();
             var max = input.Times <= 0 ? 1 : input.Times;
             var succ = 0;
             var fail = 0;
@@ -36,6 +37,7 @@ namespace Client
                 Stopwatch _sw_item = new Stopwatch();
                 _sw_item.Start();
                 var result = await helloService.GetUserInfo(new InputDto() { name = "小明" });
+                var eventresult = await serviceProxyFactory.SendEvent(new TestEventDto() { name = "小明" });
                 _sw_item.Stop();
                 if (result != null)
                 {

@@ -25,12 +25,12 @@ namespace Client
                 builder.RegisterType<CallServiceImpl>().As<ICallService>().InstancePerLifetimeScope();
             })
             .ConfigureLogging((hostingContext, logging) => {
-                //logging.AddConsole();
+                logging.AddConsole();
             })
             .ConfigureServices((context, services) =>
             {
                 //注册成为oxygen服务节点
-                services.StartOxygenServer();
+                services.StartOxygenServer(81);
                 services.AddAutofac();
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory());

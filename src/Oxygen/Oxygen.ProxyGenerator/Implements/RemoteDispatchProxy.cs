@@ -33,14 +33,19 @@ namespace Oxygen.ProxyGenerator.Implements
             RemoteRouters = new List<RemoteRouter>();
             remoteMethods.ToList().ForEach(x =>
             {
-                RemoteRouters.Add(new RemoteRouter()
+                var funcAttr = ReflectionHelper.GetAttributeProperyiesByMethodInfo<RemoteFuncAttribute>(x);
+                //生成服务调用代理
+                if (funcAttr.funcType == FuncType.Normal || funcAttr.funcType == FuncType.Actor)
                 {
-                    Key = x.Name,
-                    HostName = hostName,
-                    RouterName = $"/{routerName}/{x.Name}".ToLower(),
-                    InputType = x.GetParameters()[0].ParameterType,
-                    MethodInfo = typeof(IRemoteMessageSender).GetMethod("SendMessage").MakeGenericMethod(x.ReturnParameter.ParameterType.GenericTypeArguments[0]),
-                });
+                    RemoteRouters.Add(new RemoteRouter()
+                    {
+                        Key = x.Name,
+                        HostName = hostName,
+                        RouterName = $"/{routerName}/{x.Name}".ToLower(),
+                        InputType = x.GetParameters()[0].ParameterType,
+                        MethodInfo = typeof(IRemoteMessageSender).GetMethod("SendMessage").MakeGenericMethod(x.ReturnParameter.ParameterType.GenericTypeArguments[0]),
+                    });
+                }
             });
         }
         internal void InitSenderDelegate()

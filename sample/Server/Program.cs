@@ -4,6 +4,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Oxygen.IocModule;
 using RemoteInterface;
+using Server.interfaces;
+using System;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
 namespace Server
@@ -21,6 +24,7 @@ namespace Server
                 builder.RegisterOxygenModule();
                 //注入测试demo
                 builder.RegisterType<HelloServiceImpl>().As<IHelloService>().InstancePerLifetimeScope();
+                builder.RegisterType<HelloEventHandler>().As<IHelloEventHandler>().InstancePerLifetimeScope();
             })
             .ConfigureLogging((hostingContext, logging) => {
                 logging.AddConsole();

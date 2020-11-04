@@ -16,11 +16,13 @@ namespace Oxygen.Server.Kestrel.Implements
     {
         private readonly ILogger logger;
         private readonly IServerHandler serverHandler;
+        private readonly ISerialize serialize;
         private IWebHost Host { get; set; }
-        public KestrelHttpServer(ILogger logger, IServerHandler serverHandler)
+        public KestrelHttpServer(ILogger logger, IServerHandler serverHandler, ISerialize serialize)
         {
             this.logger = logger;
             this.serverHandler = serverHandler;
+            this.serialize = serialize;
         }
         public async Task OpenServer(Action<object> middlewarebuilder = null, int port = 80)
         {
@@ -33,7 +35,7 @@ namespace Oxygen.Server.Kestrel.Implements
                           });
                       })
                       .Configure(app =>
-                      serverHandler.BuildHandler(app)
+                      serverHandler.BuildHandler(app, serialize)
                       );
             middlewarebuilder?.Invoke(builder);
             Host = builder.Build();

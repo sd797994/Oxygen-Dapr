@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Oxygen.Client\Oxygen.Client.ServerSymbol\Oxygen.Client.ServerSymbol.csproj" />
+    <ProjectReference Include="..\..\src\Oxygen.Mesh\Oxygen.Mesh.Dapr\Oxygen.Mesh.Dapr.csproj" />
   </ItemGroup>
 
 </Project>

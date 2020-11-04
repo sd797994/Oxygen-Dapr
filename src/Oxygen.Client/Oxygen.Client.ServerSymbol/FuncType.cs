@@ -13,10 +13,6 @@ namespace Oxygen.Client.ServerSymbol
         /// <summary>
         /// actor服务
         /// </summary>
-        Actor = 1,
-        /// <summary>
-        /// 事件消费服务
-        /// </summary>
-        EventHandle = 2
+        Actor = 1
     }
 }

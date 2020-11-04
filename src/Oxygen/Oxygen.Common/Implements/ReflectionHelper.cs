@@ -17,15 +17,35 @@ namespace Oxygen.Common.Implements
         }
         public static T GetAttributeProperyiesByType<T>(Type type) where T : Attribute
         {
-            return type.GetCustomAttributes().FirstOrDefault(x=>x is T) as T;
+            return type.GetCustomAttributes().FirstOrDefault(x => x is T) as T;
+        }
+        public static T GetAttributeProperyiesByMethodInfo<T>(MethodInfo method) where T : Attribute
+        {
+            return method.GetCustomAttributes().FirstOrDefault(x => x is T) as T;
         }
         public static Type GetTypeByInterface(Type interfaceType)
         {
             return Assemblies.Value.SelectMany(a => a.GetTypes().Where(t => t.GetInterfaces().Any() && t.GetInterfaces().Contains(interfaceType))).FirstOrDefault();
         }
+        public static IEnumerable<Type> GetTypeByInterfaces<T>() where T : class
+        {
+            var basicInterfaces = GetTypesByAttributes(true);
+            if (basicInterfaces.Any())
+            {
+                foreach(var basicInterface in basicInterfaces)
+                {
+                    if (basicInterface.GetInterfaces().Any(x => x == typeof(T)))
+                        yield return basicInterface;
+                }
+            }
+        }
         public static IEnumerable<MethodInfo> GetMethodByFilter(Type type, params Type[] attributes)
         {
             return type.GetMethods().Where(x => x.GetCustomAttributes().Select(x => x.GetType()).Intersect(attributes).Count() == attributes.Count());
+        }
+        public static IEnumerable<MethodInfo> GetMethodByFilter(IEnumerable<Type> type, params Type[] attributes)
+        {
+            return type.SelectMany(x=>x.GetMethods().Where(x => x.GetCustomAttributes().Select(x => x.GetType()).Intersect(attributes).Count() == attributes.Count()));
         }
 
         public static Assembly GetAssemblyByInterface<T>()

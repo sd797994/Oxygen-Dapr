@@ -1,4 +1,4 @@
-﻿using DotNetty.Transport.Bootstrapping;
+﻿using Oxygen.Client.ServerSymbol.Events;
 using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
 using Oxygen.ProxyGenerator.Interface;
@@ -14,19 +14,17 @@ namespace Oxygen.ProxyGenerator.Implements
 {
     internal class RemoteMessageSender: IRemoteMessageSender
     {
-        private readonly IHttpClientFactory httpClientFactory;
         private readonly ISerialize serialize;
         private readonly ILogger logger;
         static HttpClient HttpClient;
         public RemoteMessageSender(IHttpClientFactory httpClientFactory, ISerialize serialize, ILogger logger)
         {
-            this.httpClientFactory = httpClientFactory;
             this.serialize = serialize;
             this.logger = logger;
             HttpClient = HttpClient ?? httpClientFactory.CreateClient();
             HttpClient.DefaultRequestHeaders.Connection.Add("keep-alive");
         }
-        async Task<T> IRemoteMessageSender.SendMessage<T>(string hostName, string serverName, object input) where T : class
+        public async Task<T> SendMessage<T>(string hostName, string serverName, object input) where T : class
         {
             T result = default;
             try
@@ -48,9 +46,12 @@ namespace Oxygen.ProxyGenerator.Implements
             }
             return result;
         }
-        internal HttpRequestMessage BuildMessage(string host,string url, object data)
+        internal HttpRequestMessage BuildMessage(string host, string url, object data)
         {
-            url = $"http://localhost:3500/v1.0/invoke/{host}/method{url}";
+            //url = $"http://localhost:3500/v1.0/invoke/{host}/method{url}";
+            url = $"http://localhost{url}";
+            if (data is IEvent)
+                url = $"http://localhost:3500/v1.0/publish/{host}/{url}";
             var request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
             var bytedata = serialize.Serializes(data);
             request.Content = new ByteArrayContent(bytedata);

@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Internal;
 using Oxygen.Common.Interface;
 using Oxygen.Server.Kestrel.Interface;
+using Oxygen.Server.Kestrel.Interface.Model;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,9 +21,9 @@ namespace Oxygen.Server.Kestrel.Implements
             this.logger = logger;
             this.messageHandler = messageHandler;
         }
-        public void BuildHandler(IApplicationBuilder app)
+        public void BuildHandler(IApplicationBuilder app, ISerialize serialize)
         {
-            RequestDelegateFactory.CreateDelegate(logger, messageHandler).ForEach(x =>
+            RequestDelegateFactory.CreateDelegate(logger, messageHandler,out List<SubscribeModel> subDelegate).ForEach(x =>
             {
                 app.Map(x.Path, handle =>
                 {
@@ -31,6 +33,14 @@ namespace Oxygen.Server.Kestrel.Implements
                     });
                 });
             });
+            if (subDelegate.Any())
+            {
+                app.Map("/dapr/subscribe", handle => handle.Run(async ctx =>
+                {
+                    ctx.Response.ContentType = "application/json";
+                    await ctx.Response.WriteAsync(serialize.SerializesJson(subDelegate));
+                }));
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Oxygen.Client.ServerSymbol;
+using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
 using Oxygen.ProxyGenerator.Implements;
 using Oxygen.Server.Kestrel.Interface;
@@ -27,7 +28,8 @@ namespace Oxygen.Server.Kestrel.Implements
         internal Func<Tin, Task<Tout>> MethodDelegate { get; set; }
         internal override async Task Excute(HttpContext ctx)
         {
-            byte[] result = default;
+            var test = OxygenIocContainer.Resolve<Tin>();
+            byte[] result = new byte[0];
             ctx.Response.ContentType = "application/json";
             var messageType = MessageType.Json;
             try

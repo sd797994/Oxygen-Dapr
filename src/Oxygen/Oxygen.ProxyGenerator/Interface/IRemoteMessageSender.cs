@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Oxygen.ProxyGenerator.Interface
 {
-    internal interface IRemoteMessageSender
+    public interface IRemoteMessageSender
     {
         Task<T> SendMessage<T>(string hostName, string serverName, object input) where T : class;
     }
