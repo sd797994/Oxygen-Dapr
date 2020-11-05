@@ -6,7 +6,9 @@ using Server.interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Unicode;
 using System.Threading.Tasks;
 
 namespace Server
@@ -18,9 +20,9 @@ namespace Server
         {
             this.logger = logger;
         }
-        public async Task<DefaultEventHandlerResponse> SubscribeByUserInfoEvent(TestEventDto input)
+        public async Task<DefaultEventHandlerResponse> SubscribeByUserInfoEvent(EventHandleRequest<TestEventDto> input)
         {
-            logger.LogInformation($"订阅器收到消息：{JsonSerializer.Serialize(input)}");
+            logger.LogInformation($"订阅器收到消息：{JsonSerializer.Serialize(input,new JsonSerializerOptions() {Encoder= JavaScriptEncoder.Create(UnicodeRanges.All) })}");
             return await Task.FromResult(new DefaultEventHandlerResponse());
         }
     }

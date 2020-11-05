@@ -45,13 +45,15 @@ namespace Oxygen.Server.Kestrel.Implements
             {
                 x.GetMethods().ToList().ForEach(y =>
                 {
-                    if(y.ReturnType == typeof(Task<DefaultEventHandlerResponse>) && y.GetParameters().Any() && y.GetParameters().FirstOrDefault().ParameterType.BaseType == typeof(IEvent))
+                    if(y.ReturnType == typeof(Task<DefaultEventHandlerResponse>) && y.GetParameters().Any()
+                           && y.GetParameters().FirstOrDefault().ParameterType.IsGenericType
+                            && y.GetParameters().FirstOrDefault().ParameterType.GetGenericTypeDefinition() == typeof(EventHandleRequest<>))
                     {
                         var requestDelegate = CreateRequestDelegate(x, x.Name, y, logger, messageHandler);
                         if (requestDelegate != null)
                         {
                             result.Add(requestDelegate);
-                            var param = Activator.CreateInstance(y.GetParameters().FirstOrDefault().ParameterType) as IEvent;
+                            var param = Activator.CreateInstance(y.GetParameters().FirstOrDefault().ParameterType.GetGenericArguments()[0]) as IEvent;
                             //todo pubsubname为dapr外部申明的组件名，此处后期需要扩展为从配置节读取
                             _subDelegate.Add(new SubscribeModel("pubsub", param.Topic, requestDelegate.Path));
                         }

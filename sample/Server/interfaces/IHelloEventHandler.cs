@@ -9,6 +9,6 @@ namespace Server.interfaces
 {
     internal interface IHelloEventHandler : IEventHandler
     {
-        Task<DefaultEventHandlerResponse> SubscribeByUserInfoEvent(TestEventDto input);
+        Task<DefaultEventHandlerResponse> SubscribeByUserInfoEvent(EventHandleRequest<TestEventDto> input);
     }
 }

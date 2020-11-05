@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Autofac;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Oxygen.Client.ServerSymbol;
 using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
@@ -26,38 +28,42 @@ namespace Oxygen.Server.Kestrel.Implements
             this.messageHandler = messageHandler;
         }
         internal Func<Tin, Task<Tout>> MethodDelegate { get; set; }
-        internal override async Task Excute(HttpContext ctx)
+        internal override async Task Excute(HttpContext ctx, ILifetimeScope lifetimeScope)
         {
-            var test = OxygenIocContainer.Resolve<Tin>();
-            byte[] result = new byte[0];
-            ctx.Response.ContentType = "application/json";
-            var messageType = MessageType.Json;
-            try
-            {
-                if (ctx.Request.ContentType == "application/x-msgpack")
+            using (var scope = lifetimeScope.BeginLifetimeScope())
+            {   
+                OxygenIocContainer.BuilderIocContainer(scope);//仅在当前请求内创建上下文模型
+                byte[] result = new byte[0];
+                ctx.Response.ContentType = "application/json";
+                var messageType = MessageType.Json;
+                try
                 {
-                    ctx.Response.ContentType = "application/x-msgpack";
-                    messageType = MessageType.MessagePack;
+                    if (ctx.Request.ContentType == "application/x-msgpack")
+                    {
+                        ctx.Response.ContentType = "application/x-msgpack";
+                        messageType = MessageType.MessagePack;
+                    }
+                    var messageobj = await messageHandler.ParseMessage<Tin>(ctx, messageType);
+                    var localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(messageobj, MethodDelegate);
+                    if (localCallbackResult != null)
+                    {
+                        result = messageHandler.BuildMessage(localCallbackResult, messageType);
+                    }
+                    else
+                    {
+                        ctx.Response.StatusCode = 404;
+                    }
                 }
-                var messageobj = await messageHandler.ParseMessage<Tin>(ctx, messageType);
-                var localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(messageobj, MethodDelegate);
-                if (localCallbackResult != null)
+                catch (Exception e)
                 {
-                    result = messageHandler.BuildMessage(localCallbackResult, messageType);
+                    logger.LogError("服务端消息处理异常: " + e.Message);
+                    ctx.Response.StatusCode = 502;
                 }
-                else
+                finally
                 {
-                    ctx.Response.StatusCode = 404;
+                    await ctx.Response.Body.WriteAsync(result, 0, result.Length);
+                    OxygenIocContainer.DisposeIocContainer();//注销上下文
                 }
-            }
-            catch (Exception e)
-            {
-                logger.LogError("服务端消息处理异常: " + e.Message);
-                ctx.Response.StatusCode = 502;
-            }
-            finally
-            {
-                await ctx.Response.Body.WriteAsync(result, 0, result.Length);
             }
         }
     }

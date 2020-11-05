@@ -23,7 +23,6 @@ namespace Client
         }
         public async Task<MultipleTestOutput> MultipleTest(MultipleTestInput input)
         {
-            Oxygen.Common.Implements.OxygenIocContainer.Resolve<IHelloService>();
             var max = input.Times <= 0 ? 1 : input.Times;
             var succ = 0;
             var fail = 0;

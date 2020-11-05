@@ -20,9 +20,9 @@ namespace Oxygen.Client.ServerProxyFactory.Implements
         {
             return OxygenIocContainer.Resolve<T>();
         }
-        public async Task<DefaultEventHandlerResponse> SendEvent<T>(T input) where T : IEvent
+        public async Task<DefaultEventPublishResponse> SendEvent<T>(T input) where T : IEvent
         {
-            return await messageSender.SendMessage<DefaultEventHandlerResponse>("pubsub", input.Topic, input);
+            return await messageSender.SendMessage<DefaultEventPublishResponse>("pubsub", input.Topic, input);
         }
     }
 }

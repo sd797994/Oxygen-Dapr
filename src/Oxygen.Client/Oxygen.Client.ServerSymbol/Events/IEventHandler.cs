@@ -11,4 +11,8 @@ namespace Oxygen.Client.ServerSymbol.Events
     {
 
     }
+    public class EventHandleRequest<T> where T : IEvent
+    {
+        public T data { get; set; }
+    }
 }

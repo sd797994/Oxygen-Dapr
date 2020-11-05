@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Autofac;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Internal;
+using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
 using Oxygen.Server.Kestrel.Interface;
 using Oxygen.Server.Kestrel.Interface.Model;
@@ -16,10 +18,12 @@ namespace Oxygen.Server.Kestrel.Implements
     {
         private readonly ILogger logger;
         private readonly IMessageHandler messageHandler;
-        public KestrelServerHandler(ILogger logger, IMessageHandler messageHandler)
+        private readonly ILifetimeScope container;
+        public KestrelServerHandler(ILogger logger, IMessageHandler messageHandler, ILifetimeScope container)
         {
             this.logger = logger;
             this.messageHandler = messageHandler;
+            this.container = container;
         }
         public void BuildHandler(IApplicationBuilder app, ISerialize serialize)
         {
@@ -29,7 +33,7 @@ namespace Oxygen.Server.Kestrel.Implements
                 {
                     handle.MapWhen(p => p.Request.Method.Equals("POST"), builder =>
                     {
-                        builder.Run(x.Excute);
+                        builder.Run(ctx=>x.Excute(ctx, container));
                     });
                 });
             });

@@ -30,7 +30,7 @@ namespace Client
             .ConfigureServices((context, services) =>
             {
                 //注册成为oxygen服务节点
-                services.StartOxygenServer(81);
+                services.StartOxygenServer();
                 services.AddAutofac();
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory());
