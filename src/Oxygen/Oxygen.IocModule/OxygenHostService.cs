@@ -14,15 +14,17 @@ namespace Oxygen.IocModule
     internal class OxygenHostService : IHostedService
     {
         private readonly IServer.IServer server;
+        private readonly ILifetimeScope lifetimeScope;
         public OxygenHostService(IServer.IServer server, ILifetimeScope lifetimeScope)
         {
             this.server = server;
             OxygenIocContainer.BuilderIocContainer(lifetimeScope);
             RemoteProxyGenerator.InitRemoteMessageSenderDelegate();//初始化消息发送代理
+            this.lifetimeScope = lifetimeScope;
         }
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await server.OpenServer((x) => ActorServiceFactory.RegisterActorService(x), HostBuilderExtension.Port);
+            await server.OpenServer((x) => ActorServiceFactory.RegisterActorService(x, lifetimeScope), HostBuilderExtension.Port);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

@@ -1,4 +1,6 @@
-﻿using Oxygen.Client.ServerProxyFactory.Interface;
+﻿using Autofac;
+using Oxygen.Client.ServerProxyFactory.Interface;
+using Oxygen.Mesh.Dapr;
 using RemoteInterface;
 using System;
 using System.Collections.Concurrent;
@@ -6,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -17,9 +20,17 @@ namespace Client
     public class CallServiceImpl : ICallService
     {
         private readonly IServiceProxyFactory serviceProxyFactory;
-        public CallServiceImpl(IServiceProxyFactory serviceProxyFactory)
+        public CallServiceImpl(IServiceProxyFactory serviceProxyFactory, ILifetimeScope scope)
         {
             this.serviceProxyFactory = serviceProxyFactory;
+        }
+        public async Task<InputDto> RemoteCallTest(InputDto input)
+        {
+            var helloService = serviceProxyFactory.CreateProxy<IHelloService>();
+            var invokeresult = await helloService.GetUserInfo(new InputDto() { name = "xiaoming" });
+            var eventresult = await serviceProxyFactory.SendEvent(new TestEventDto() { name = "xiaoming" });
+            var actorresult = await helloService.GetUserInfoByActor(new ActorInputDto() { name = "xiaoming", ActorId = "1" });
+            return new InputDto() { name = $"普通调用成功，回调：{JsonSerializer.Serialize(invokeresult)},事件发送{(eventresult != null ? "成功" : "失败")},actor调用成功，回调：{JsonSerializer.Serialize(actorresult)}" };
         }
         public async Task<MultipleTestOutput> MultipleTest(MultipleTestInput input)
         {
@@ -35,10 +46,10 @@ namespace Client
                 var helloService = serviceProxyFactory.CreateProxy<IHelloService>();
                 Stopwatch _sw_item = new Stopwatch();
                 _sw_item.Start();
-                var result = await helloService.GetUserInfo(new InputDto() { name = "小明" });
+                var invokeresult = await helloService.GetUserInfo(new InputDto() { name = "小明" });
                 var eventresult = await serviceProxyFactory.SendEvent(new TestEventDto() { name = "小明" });
                 _sw_item.Stop();
-                if (result != null)
+                if (invokeresult != null)
                 {
                     Interlocked.Increment(ref succ);
                     times.Add(_sw_item.ElapsedMilliseconds);

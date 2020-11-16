@@ -11,10 +11,10 @@ namespace Oxygen.Client.ServerSymbol
     [AttributeUsage(AttributeTargets.Method)]
     public class RemoteFuncAttribute : Attribute
     {
-        public FuncType funcType { get; set; }
+        public FuncType FuncType { get; set; }
         public RemoteFuncAttribute(FuncType funcType = FuncType.Normal)
         {
-            this.funcType = funcType;
+            this.FuncType = funcType;
         }
     }
 }

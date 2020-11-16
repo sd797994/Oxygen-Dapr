@@ -1,15 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
-using Oxygen.Client.ServerSymbol;
+using Oxygen.Mesh.Dapr;
+using Oxygen.Mesh.Dapr.Model;
 using RemoteInterface;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Server
 {
-    public class HelloServiceImpl : IHelloService
+    public class HelloServiceImpl : BaseActorService<MyActor>, IHelloService
     {
         private readonly ILogger<HelloServiceImpl> logger;
         public HelloServiceImpl(ILogger<HelloServiceImpl> logger)
@@ -20,10 +17,19 @@ namespace Server
         {
             return await Task.FromResult(new OutDto() { word = $"hello {input?.name}" });
         }
-
-        public async Task<OutDto> GetUserInfoByActor(InputDto input)
+        public async Task<OutDto> GetUserInfoByActor(ActorInputDto input)
         {
-            return await Task.FromResult(new OutDto() { word = $"hello {input?.name}" });
+            if (ActorData == null)
+                ActorData = new MyActor() { Index = 0, AutoSave = true };
+            ActorData.Index++;
+            if (ActorData.Index == 10)
+                ActorData.DeleteModel();
+            return await Task.FromResult(new OutDto() { word = $"hello {ActorData.Index}" });
         }
+    }
+    public class MyActor : ActorStateModel
+    {
+        public int Index { get; set; }
+        public override bool AutoSave { get; set; }
     }
 }

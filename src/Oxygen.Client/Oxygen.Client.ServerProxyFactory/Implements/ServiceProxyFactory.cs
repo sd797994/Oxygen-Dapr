@@ -22,7 +22,7 @@ namespace Oxygen.Client.ServerProxyFactory.Implements
         }
         public async Task<DefaultEventPublishResponse> SendEvent<T>(T input) where T : IEvent
         {
-            return await messageSender.SendMessage<DefaultEventPublishResponse>("pubsub", input.Topic, input);
+            return await messageSender.SendMessage<DefaultEventPublishResponse>("pubsub", $"/{input.Topic}", input, SendType.publish);
         }
     }
 }

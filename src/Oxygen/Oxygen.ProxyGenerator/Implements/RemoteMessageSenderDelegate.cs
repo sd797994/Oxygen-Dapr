@@ -9,14 +9,14 @@ namespace Oxygen.ProxyGenerator.Implements
 {
     internal class RemoteMessageSenderDelegate<Tin, Tout> : IRemoteMessageSenderDelegate where Tout : Task
     {
-        private Func<string, string, Tin, Tout> proxyfunc;
+        private Func<string, string, Tin, SendType, Tout> proxyfunc;
         public RemoteMessageSenderDelegate(MethodInfo method, object instence)
         {
-            proxyfunc = (Func<string, string, Tin, Tout>)method.CreateDelegate(typeof(Func<string, string, Tin, Tout>), instence);
+            proxyfunc = (Func<string, string, Tin, SendType, Tout>)method.CreateDelegate(typeof(Func<string, string, Tin, SendType, Tout>), instence);
         }
-        public object Excute(string hostName, string serviceName, object val)
+        public object Excute(string hostName, string serviceName, object val, SendType sendType)
         {
-            return proxyfunc(hostName, serviceName, (Tin)val);
+            return proxyfunc(hostName, serviceName, (Tin)val, sendType);
         }
     }
 }

@@ -26,3 +26,4 @@ cd ../
 kubectl delete -f start-dapr-debug.yaml
 kubectl apply -f start-dapr-debug.yaml
 )
+docker system prune -f

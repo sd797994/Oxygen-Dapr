@@ -10,6 +10,8 @@ namespace RemoteInterface
     public interface ICallService
     {
         [RemoteFunc]
+        Task<InputDto> RemoteCallTest(InputDto input);
+        [RemoteFunc]
         Task<MultipleTestOutput> MultipleTest(MultipleTestInput input);
     }
     public class MultipleTestInput

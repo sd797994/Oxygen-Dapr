@@ -34,7 +34,10 @@ namespace Oxygen.Common.Implements
                     if (Current.Value.TryResolve(out T instance))
                         return instance;
                     else
-                        return default;
+                    {
+                        logger.LogError($"IOC容器实例化失败，没有找到类型{typeof(T).Name}!");
+                        return null;
+                    }
                 }
             }
             catch (Exception ex)
@@ -57,7 +60,10 @@ namespace Oxygen.Common.Implements
                     if (Current.Value.TryResolve(type, out object instance))
                         return instance;
                     else
+                    {
+                        logger.LogError($"IOC容器实例化失败，没有找到类型{type.Name}!");
                         return null;
+                    }
                 }
             }
             catch (Exception ex)

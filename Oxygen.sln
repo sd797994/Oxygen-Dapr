@@ -21,21 +21,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.Common", "src\Oxygen
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.ProxyGenerator", "src\Oxygen\Oxygen.ProxyGenerator\Oxygen.ProxyGenerator.csproj", "{E4A9406E-C07D-477C-A1A9-52586725B25B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.Client.ServerProxyFactory", "src\Oxygen.Client\Oxygen.Client.ServerProxyFactory\Oxygen.Client.ServerProxyFactory.csproj", "{BB642028-45C9-438F-BAE4-A22E582359C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.Client.ServerProxyFactory", "src\Oxygen.Client\Oxygen.Client.ServerProxyFactory\Oxygen.Client.ServerProxyFactory.csproj", "{BB642028-45C9-438F-BAE4-A22E582359C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.Client.ServerSymbol", "src\Oxygen.Client\Oxygen.Client.ServerSymbol\Oxygen.Client.ServerSymbol.csproj", "{58D8475D-C23D-4B4B-ABE0-32E3199FCBD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.Client.ServerSymbol", "src\Oxygen.Client\Oxygen.Client.ServerSymbol\Oxygen.Client.ServerSymbol.csproj", "{58D8475D-C23D-4B4B-ABE0-32E3199FCBD0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.Mesh.Dapr", "src\Oxygen.Mesh\Oxygen.Mesh.Dapr\Oxygen.Mesh.Dapr.csproj", "{F4748E0B-C033-4293-BCB1-7370A55BB02D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.Mesh.Dapr", "src\Oxygen.Mesh\Oxygen.Mesh.Dapr\Oxygen.Mesh.Dapr.csproj", "{F4748E0B-C033-4293-BCB1-7370A55BB02D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteInterface", "sample\RemoteInterface\RemoteInterface.csproj", "{B6E9A444-7A28-4964-83E5-F84CC1F6E945}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteInterface", "sample\RemoteInterface\RemoteInterface.csproj", "{B6E9A444-7A28-4964-83E5-F84CC1F6E945}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "sample\Client\Client.csproj", "{3FB24A03-E88D-4FBC-B601-555D59389931}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "sample\Client\Client.csproj", "{3FB24A03-E88D-4FBC-B601-555D59389931}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "sample\Server\Server.csproj", "{6C5E0E28-5B9B-4AB9-A122-27DF9F4C2333}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "sample\Server\Server.csproj", "{6C5E0E28-5B9B-4AB9-A122-27DF9F4C2333}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.IocModule", "src\Oxygen\Oxygen.IocModule\Oxygen.IocModule.csproj", "{5BE04D5E-F3C2-4043-A472-D1CE61C795A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.IocModule", "src\Oxygen\Oxygen.IocModule\Oxygen.IocModule.csproj", "{5BE04D5E-F3C2-4043-A472-D1CE61C795A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen.IServer", "src\Oxygen.Server\Oxygen.IServer\Oxygen.IServer.csproj", "{6C9EB20E-ABA1-4323-9DE3-848AF4F9F2B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oxygen.IServer", "src\Oxygen.Server\Oxygen.IServer\Oxygen.IServer.csproj", "{6C9EB20E-ABA1-4323-9DE3-848AF4F9F2B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

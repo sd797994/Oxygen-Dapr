@@ -1,4 +1,6 @@
-﻿using Oxygen.Client.ServerSymbol.Events;
+﻿using Oxygen.Client.ServerSymbol;
+using Oxygen.Client.ServerSymbol.Actors;
+using Oxygen.Client.ServerSymbol.Events;
 using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
 using Oxygen.ProxyGenerator.Interface;
@@ -24,16 +26,18 @@ namespace Oxygen.ProxyGenerator.Implements
             HttpClient = HttpClient ?? httpClientFactory.CreateClient();
             HttpClient.DefaultRequestHeaders.Connection.Add("keep-alive");
         }
-        public async Task<T> SendMessage<T>(string hostName, string serverName, object input) where T : class, new()
+        public async Task<T> SendMessage<T>(string hostName, string serverName, object input, SendType sendType) where T : class, new()
         {
             T result = default;
             try
             {
-                var sendMessage = BuildMessage(hostName, serverName, input);
+                var sendMessage = BuildMessage(hostName, serverName, input, sendType);
                 var responseMessage = await HttpClient.SendAsync(sendMessage);
                 if (responseMessage.IsSuccessStatusCode)
                 {
-                    return ReceiveMessage<T>(await responseMessage.Content.ReadAsByteArrayAsync());
+                    if (sendType == SendType.publish)
+                        return new T();//事件只要返回200代表发送成功
+                    return ReceiveMessage<T>(sendType, await responseMessage.Content.ReadAsByteArrayAsync());
                 }
                 else
                 {
@@ -46,33 +50,44 @@ namespace Oxygen.ProxyGenerator.Implements
             }
             return result;
         }
-        internal HttpRequestMessage BuildMessage(string host, string url, object data)
+        internal HttpRequestMessage BuildMessage(string host, string url, object data, SendType sendType)
         {
             //本地联调集群地址：api.oxygen-dapr.com:31889
             //集群内地址：localhost:3500
+            //todo: 由于event和actor会被dapr拦截使用Text.Json进行序列化封装，导致无法使用messagepack序列/反序列化,所以暂时只能采用json
+            var basepath = $"http://localhost:3500/";
             HttpRequestMessage request;
-            if (data is IEvent)
+            switch (sendType)
             {
-                url = $"http://localhost:3500/v1.0/publish/{host}/{url}";
-                request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
-                var bytedata = serialize.SerializesJson(data);
-                request.Content = new StringContent(bytedata);
+                case SendType.invoke:
+                    url = $"{basepath}v1.0/invoke/{host}/method{url}";
+                    request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
+                    var bytedata = serialize.Serializes(data);
+                    request.Content = new ByteArrayContent(bytedata);
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue($"application/x-msgpack");
+                    return request;
+                case SendType.publish:
+                    url = $"{basepath}v1.0/publish/{host}{url}";
+                    request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
+                    var stringjson = serialize.SerializesJson(data);
+                    request.Content = new StringContent(stringjson);
+                    return request;
+                case SendType.actors:
+                    url = $"{basepath}v1.0/actors/{host}/{((ActorSendDto)data).ActorId}/method{url}";
+                    request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
+                    stringjson = serialize.SerializesJson(data);
+                    request.Content = new StringContent(stringjson);
+                    return request;
             }
-            else
-            {
-                url = $"http://localhost:3500/v1.0/invoke/{host}/method{url}";
-                request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
-                var bytedata = serialize.Serializes(data);
-                request.Content = new ByteArrayContent(bytedata);
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue($"application/x-msgpack");
-                return request;
-            }
-            return request;
+            return default;
         }
 
-        internal T ReceiveMessage<T>(byte[] data) where T :class, new()
+        internal T ReceiveMessage<T>(SendType sendType, byte[] data) where T : class, new()
         {
-            return serialize.Deserializes<T>(data) ?? new T();
+            if (sendType == SendType.invoke)
+                return serialize.Deserializes<T>(data) ?? new T();
+            else
+                return serialize.DeserializesJson<T>(Encoding.UTF8.GetString(data));
         }
     }
 }

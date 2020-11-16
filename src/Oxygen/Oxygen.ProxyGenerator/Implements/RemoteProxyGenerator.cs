@@ -30,7 +30,7 @@ namespace Oxygen.ProxyGenerator.Implements
                 {
                     var proxyInstance = ThisType.GetMethod(nameof(CreateProxyInstance)).MakeGenericMethod(x).Invoke(ThisObj, null) as RemoteDispatchProxyBase;
                     builder.RegisterInstance(proxyInstance).As(x);
-                    proxyInstance.InitRemoteRouters(attr.HostName, attr.ServerName ?? x.Name, ReflectionHelper.GetMethodByFilter(x, typeof(RemoteFuncAttribute)));
+                    proxyInstance.InitRemoteRouters(x, attr.HostName, attr.ServerName ?? x.Name, ReflectionHelper.GetMethodByFilter(x, typeof(RemoteFuncAttribute)));
                     Proxies.Add(proxyInstance);
                 }
             });

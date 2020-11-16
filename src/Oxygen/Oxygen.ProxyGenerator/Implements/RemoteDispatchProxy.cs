@@ -18,7 +18,7 @@ namespace Oxygen.ProxyGenerator.Implements
             var router = RemoteRouters.FirstOrDefault(x => x.Key.Equals(targetMethod.Name));
             if (router != null)
             {
-                return router.SenderDelegate.Excute(router.HostName, router.RouterName, args[0]);
+                return router.SenderDelegate.Excute(router.HostName, router.RouterName, args[0], router.SendType);
             }
             else
             {
@@ -28,21 +28,22 @@ namespace Oxygen.ProxyGenerator.Implements
     }
     public abstract class RemoteDispatchProxyBase : DispatchProxy
     {
-        internal void InitRemoteRouters(string hostName, string routerName, IEnumerable<MethodInfo> remoteMethods)
+        internal void InitRemoteRouters(Type interfaceType, string hostName, string routerName, IEnumerable<MethodInfo> remoteMethods)
         {
             RemoteRouters = new List<RemoteRouter>();
             remoteMethods.ToList().ForEach(x =>
             {
                 var funcAttr = ReflectionHelper.GetAttributeProperyiesByMethodInfo<RemoteFuncAttribute>(x);
                 //生成服务调用代理
-                if (funcAttr.funcType == FuncType.Normal || funcAttr.funcType == FuncType.Actor)
+                if (funcAttr.FuncType == FuncType.Normal || funcAttr.FuncType == FuncType.Actor)
                 {
                     RemoteRouters.Add(new RemoteRouter()
                     {
                         Key = x.Name,
-                        HostName = hostName,
-                        RouterName = $"/{routerName}/{x.Name}".ToLower(),
+                        HostName = funcAttr.FuncType == FuncType.Actor ? $"/{interfaceType.Name}ActorImpl" : hostName,
+                        RouterName = funcAttr.FuncType == FuncType.Actor ? $"/{x.Name}" : $"/{routerName}/{x.Name}".ToLower(),
                         InputType = x.GetParameters()[0].ParameterType,
+                        SendType = funcAttr.FuncType == FuncType.Normal ? SendType.invoke : funcAttr.FuncType == FuncType.Actor ? SendType.actors : SendType.invoke,
                         MethodInfo = typeof(IRemoteMessageSender).GetMethod("SendMessage").MakeGenericMethod(x.ReturnParameter.ParameterType.GenericTypeArguments[0]),
                     });
                 }
@@ -59,6 +60,7 @@ namespace Oxygen.ProxyGenerator.Implements
             internal string RouterName { get; set; }
             internal Type InputType { get; set; }
             internal MethodInfo MethodInfo { get; set; }
+            internal SendType SendType { get; set; }
             internal IRemoteMessageSenderDelegate SenderDelegate { get; set; }
         }
         protected List<RemoteRouter> RemoteRouters { get; set; }
