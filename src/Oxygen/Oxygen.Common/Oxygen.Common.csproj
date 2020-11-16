@@ -5,10 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="5.2.0" />
-    <PackageReference Include="MessagePack" Version="2.1.115" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="3.1.6" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.8" />
+    <PackageReference Include="Autofac" Version="6.0.0" />
+    <PackageReference Include="MessagePack" Version="2.2.60" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
   </ItemGroup>
 
 </Project>
