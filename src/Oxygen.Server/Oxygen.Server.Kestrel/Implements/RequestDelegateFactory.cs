@@ -54,7 +54,7 @@ namespace Oxygen.Server.Kestrel.Implements
                         {
                             result.Add(requestDelegate);
                             var param = Activator.CreateInstance(y.GetParameters().FirstOrDefault().ParameterType.GetGenericArguments()[0]) as IEvent;
-                            //todo pubsubname为dapr外部申明的组件名，此处后期需要扩展为从配置节读取
+                            //todo: pubsubname为dapr外部申明的组件名，此处后期需要扩展为从配置节读取
                             _subDelegate.Add(new SubscribeModel("pubsub", param.Topic, requestDelegate.Path));
                         }
                     }

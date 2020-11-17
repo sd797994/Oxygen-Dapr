@@ -12,20 +12,23 @@ using System.Threading.Tasks;
 
 namespace Oxygen.Mesh.Dapr
 {
-
     public class BasicActor<T> : Actor where T : ActorStateModel
     {
         public T ActorData { get; set; }
-        private string actorId;
         private readonly ILifetimeScope lifetimeScope;
         public ActorStateMessage actorStateMessage;
+        public bool registerTimerState;
         public BasicActor(ActorService actorService, ActorId actorId, ILifetimeScope lifetimeScope) : base(actorService, actorId)
         {
-            this.actorId = actorId.GetId();
             this.lifetimeScope = lifetimeScope;
             actorStateMessage = new ActorStateMessage() { ActorName = typeof(T).FullName };
+            registerTimerState = false;
         }
-        protected override async Task OnPreActorMethodAsync(ActorMethodContext actorMethodContext)
+        /// <summary>
+        /// actor激活事件
+        /// </summary>
+        /// <returns></returns>
+        protected override async Task OnActivateAsync()
         {
             if (ActorData == null)
             {
@@ -35,13 +38,36 @@ namespace Oxygen.Mesh.Dapr
                     ActorData = result.Value;
                     if (ActorData != null)
                     {
+                        actorStateMessage.ActorData = ActorData;
                         //激活actor之后立即发送一次持久化消息，避免上一个actor关闭时没有成功发送持久化消息
                         await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
+                        //为actor注册定时器定时发送持久化消息
+                        if (ActorData.AutoSave == true && ActorData.ReminderSeconds >= 5)
+                        {
+                            registerTimerState = true;
+                            await RegisterTimer(ActorData.ReminderSeconds);
+                        }
                     }
                 }
             }
             await Task.CompletedTask;
         }
+        public async Task RegisterTimer(int reminderSeconds)
+        {
+            await RegisterTimerAsync("SaveActorDataTimer", this.TimerCallBack, null, TimeSpan.FromSeconds(reminderSeconds), TimeSpan.FromSeconds(reminderSeconds));
+        }
+        private async Task TimerCallBack(object data)
+        {
+            //激活actor之后立即发送一次持久化消息，避免上一个actor关闭时没有成功发送持久化消息
+            actorStateMessage.ActorData = ActorData;
+            await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
+            await Task.CompletedTask;
+        }
+        /// <summary>
+        /// actor业务处理后置事件
+        /// </summary>
+        /// <param name="actorMethodContext"></param>
+        /// <returns></returns>
         protected override async Task OnPostActorMethodAsync(ActorMethodContext actorMethodContext)
         {
             if (ActorData != null && ActorData.AutoSave)
@@ -54,13 +80,23 @@ namespace Oxygen.Mesh.Dapr
                 else
                 {
                     await StateManager.SetStateAsync("ActorData", ActorData);
+                    if (registerTimerState == false && ActorData.ReminderSeconds >= 5)
+                    {
+                        registerTimerState = true;
+                        await RegisterTimer(ActorData.ReminderSeconds);
+                    }
                 }
             }
             await Task.CompletedTask;
         }
+        /// <summary>
+        /// actor销毁事件
+        /// </summary>
+        /// <returns></returns>
         protected override async Task OnDeactivateAsync()
         {
             //actor被回收时需要发送持久化消息
+            actorStateMessage.ActorData = ActorData;
             await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
         }
     }

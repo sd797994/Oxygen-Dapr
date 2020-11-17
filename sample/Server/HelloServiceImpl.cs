@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using Oxygen.Mesh.Dapr;
 using Oxygen.Mesh.Dapr.Model;
 using RemoteInterface;
@@ -28,9 +29,10 @@ namespace Server
             return await Task.FromResult(new OutDto() { word = $"hello {ActorData.Index}" });
         }
 
-        public override async Task SaveData()
+        public override async Task SaveData(ActorStateModel data, ILifetimeScope scope)
         {
-            Console.WriteLine("收到持久化消息的提醒!");
+            if (data != null)
+                await scope.Resolve<IHelloRepository>().SaveData(data as MyActor);
             await Task.CompletedTask;
         }
     }
@@ -38,5 +40,22 @@ namespace Server
     {
         public int Index { get; set; }
         public override bool AutoSave { get; set; }
+        public override int ReminderSeconds { get => 10; }
+    }
+    public interface IHelloRepository
+    {
+        Task SaveData(MyActor actor);
+    }
+    public class HelloRepository: IHelloRepository
+    {
+        public HelloRepository()
+        {
+
+        }
+        public async Task SaveData(MyActor actor)
+        {
+            Console.WriteLine($"实例持久化中：{actor?.Index}");
+            await Task.CompletedTask;
+        }
     }
 }

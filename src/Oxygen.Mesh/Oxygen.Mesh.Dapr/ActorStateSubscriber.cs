@@ -1,6 +1,8 @@
-﻿using MediatR;
+﻿using Autofac;
+using MediatR;
 using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
+using Oxygen.Mesh.Dapr.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +14,15 @@ namespace Oxygen.Mesh.Dapr
 {
     public class ActorStateSubscriber : INotificationHandler<ActorStateMessage>
     {
-        public static Dictionary<string, Func<Task>> Handlers = new Dictionary<string, Func<Task>>();
+        public static Dictionary<string, Func<ActorStateModel, ILifetimeScope, Task>> Handlers = new Dictionary<string, Func<ActorStateModel, ILifetimeScope, Task>>();
         private readonly ILogger logger;
-        public ActorStateSubscriber(ILogger logger)
+        private readonly ILifetimeScope lifetimeScope;
+        public ActorStateSubscriber(ILogger logger, ILifetimeScope lifetimeScope)
         {
             this.logger = logger;
+            this.lifetimeScope = lifetimeScope;
         }
-        public static void RegisterHandler(string actorName, Func<Task> handler)
+        public static void RegisterHandler(string actorName, Func<ActorStateModel, ILifetimeScope, Task> handler)
         {
             if (!Handlers.TryAdd(actorName, handler))
             {
@@ -31,12 +35,12 @@ namespace Oxygen.Mesh.Dapr
         }
         public async Task Handle(ActorStateMessage notification, CancellationToken cancellationToken)
         {
-            if (Handlers.TryGetValue(notification.ActorName, out Func<Task> handler))
+            if (Handlers.TryGetValue(notification.ActorName, out Func<ActorStateModel, ILifetimeScope, Task> handler))
             {
                 try
                 {
-                    logger.LogInfo($"查询到key为{notification.ActorName}的处理器，准备调用");
-                    await handler();
+                    using var scope = lifetimeScope.BeginLifetimeScope();
+                    await handler(notification.ActorData, scope);
                 }
                 catch (Exception e)
                 {
