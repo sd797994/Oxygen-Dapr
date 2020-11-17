@@ -1,0 +1,1 @@
+.van-rate{display:-webkit-inline-box;display:-webkit-inline-flex;display:inline-flex;-webkit-user-select:none;user-select:none}.van-rate__item{position:relative}.van-rate__item:not(:last-child){padding-right:4px}.van-rate__icon{display:block;width:1em;font-size:20px}.van-rate__icon--half{position:absolute;top:0;left:0;width:.5em;overflow:hidden}

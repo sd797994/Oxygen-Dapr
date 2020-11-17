@@ -2,6 +2,7 @@
 using Oxygen.Mesh.Dapr;
 using Oxygen.Mesh.Dapr.Model;
 using RemoteInterface;
+using System;
 using System.Threading.Tasks;
 
 namespace Server
@@ -25,6 +26,12 @@ namespace Server
             if (ActorData.Index == 10)
                 ActorData.DeleteModel();
             return await Task.FromResult(new OutDto() { word = $"hello {ActorData.Index}" });
+        }
+
+        public override async Task SaveData()
+        {
+            Console.WriteLine("收到持久化消息的提醒!");
+            await Task.CompletedTask;
         }
     }
     public class MyActor : ActorStateModel

@@ -1,0 +1,1 @@
+.van-circle{position:relative;display:inline-block;text-align:center}.van-circle svg,.van-circle__text{position:absolute;left:0;width:100%}.van-circle svg{top:0;height:100%}.van-circle__layer{fill:none;stroke-linecap:round}.van-circle__text{top:50%;color:#323233;font-weight:500;font-size:14px;line-height:18px;-webkit-transform:translateY(-50%);transform:translateY(-50%)}

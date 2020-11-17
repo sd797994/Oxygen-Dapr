@@ -1,0 +1,105 @@
+@import '../style/var';
+@import '../style/mixins/ellipsis';
+
+.van-coupon {
+  margin: @coupon-margin;
+  overflow: hidden;
+  background-color: @coupon-background-color;
+  border-radius: @coupon-border-radius;
+  box-shadow: @coupon-box-shadow;
+
+  &:active {
+    background-color: @coupon-active-background-color;
+  }
+
+  &__content {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: @coupon-content-height;
+    padding: @coupon-content-padding;
+    color: @gray-8;
+  }
+
+  &__head {
+    position: relative;
+    min-width: @coupon-head-width;
+    padding: 0 @padding-xs;
+    color: @coupon-amount-color;
+    text-align: center;
+  }
+
+  &__amount,
+  &__condition,
+  &__name,
+  &__valid {
+    .ellipsis();
+  }
+
+  &__amount {
+    margin-bottom: 6px;
+    font-weight: @font-weight-bold;
+    font-size: @coupon-amount-font-size;
+    .ellipsis();
+
+    span {
+      font-weight: normal;
+      font-size: @coupon-currency-font-size;
+
+      &:not(:empty) {
+        margin-left: 2px;
+      }
+    }
+  }
+
+  &__condition {
+    font-size: @font-size-sm;
+    line-height: 16px;
+    white-space: pre-wrap;
+  }
+
+  &__body {
+    position: relative;
+    flex: 1;
+    border-radius: 0 @coupon-border-radius @coupon-border-radius 0;
+  }
+
+  &__name {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: @coupon-name-font-size;
+    line-height: 20px;
+  }
+
+  &__valid {
+    font-size: @font-size-sm;
+  }
+
+  &__corner {
+    position: absolute;
+    top: 0;
+    right: @padding-md;
+    bottom: 0;
+  }
+
+  &__description {
+    padding: @coupon-description-padding;
+    font-size: @font-size-sm;
+    background-color: @coupon-description-background-color;
+    border-top: 1px dashed @coupon-description-border-color;
+  }
+
+  &--disabled {
+    &:active {
+      background-color: @coupon-background-color;
+    }
+
+    .van-coupon-item__content {
+      height: @coupon-content-height - 10px;
+    }
+
+    .van-coupon__head {
+      color: inherit;
+    }
+  }
+}

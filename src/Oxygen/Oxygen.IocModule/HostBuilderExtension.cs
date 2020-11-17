@@ -20,6 +20,7 @@ namespace Oxygen.IocModule
             builder.RegisterModule(new Common.Module());
             builder.RegisterModule(new IServer.Module());
             builder.RegisterModule(new ProxyGenerator.Module());
+            builder.RegisterModule(new Mesh.Dapr.Module());
             builder.RegisterModule(new Client.ServerProxyFactory.Module());
             return builder;
         }

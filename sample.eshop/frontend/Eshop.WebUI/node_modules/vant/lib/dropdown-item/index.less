@@ -1,0 +1,38 @@
+@import '../style/var';
+
+.van-dropdown-item {
+  position: fixed;
+  right: 0;
+  left: 0;
+  overflow: hidden;
+
+  &__option {
+    text-align: left;
+
+    &--active {
+      color: @dropdown-menu-option-active-color;
+
+      .van-dropdown-item__icon {
+        color: @dropdown-menu-option-active-color;
+      }
+    }
+  }
+
+  &--up {
+    top: 0;
+  }
+
+  &--down {
+    bottom: 0;
+  }
+
+  &__content {
+    position: absolute;
+    max-height: @dropdown-menu-content-max-height;
+  }
+
+  &__icon {
+    display: block;
+    line-height: inherit;
+  }
+}

@@ -1,0 +1,72 @@
+@import '../style/var';
+
+.van-action-sheet {
+  max-height: @action-sheet-max-height;
+  color: @action-sheet-item-text-color;
+
+  &__item,
+  &__cancel {
+    display: block;
+    width: 100%;
+    padding: 0;
+    font-size: @action-sheet-item-font-size;
+    line-height: @action-sheet-item-height;
+    text-align: center;
+    background-color: @action-sheet-item-background;
+    border: none;
+
+    &:active {
+      background-color: @active-color;
+    }
+  }
+
+  &__item {
+    height: @action-sheet-item-height;
+
+    &--disabled {
+      color: @action-sheet-item-disabled-text-color;
+
+      &:active {
+        background-color: @action-sheet-item-background;
+      }
+    }
+  }
+
+  &__subname {
+    margin-left: @padding-base;
+    color: @action-sheet-subname-color;
+    font-size: @action-sheet-subname-font-size;
+  }
+
+  &__cancel::before {
+    display: block;
+    height: @action-sheet-cancel-padding-top;
+    background-color: @action-sheet-cancel-padding-color;
+    content: ' ';
+  }
+
+  &__header {
+    font-weight: @font-weight-bold;
+    font-size: @action-sheet-header-font-size;
+    line-height: @action-sheet-header-height;
+    text-align: center;
+  }
+
+  &__description {
+    padding: @padding-md;
+    color: @action-sheet-description-color;
+    font-size: @action-sheet-description-font-size;
+    line-height: @action-sheet-description-line-height;
+    text-align: center;
+  }
+
+  &__close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: @action-sheet-close-icon-padding;
+    color: @action-sheet-close-icon-color;
+    font-size: @action-sheet-close-icon-size;
+    line-height: inherit;
+  }
+}

@@ -1,0 +1,54 @@
+@import '../style/var';
+
+.van-slider {
+  position: relative;
+  background-color: @slider-inactive-background-color;
+  border-radius: @border-radius-max;
+
+  // use pseudo element to expand click area
+  &::before {
+    position: absolute;
+    top: -@padding-xs;
+    right: 0;
+    bottom: -@padding-xs;
+    left: 0;
+    content: '';
+  }
+
+  &__bar {
+    position: relative;
+    background-color: @slider-active-background-color;
+    border-radius: inherit;
+    transition: width @animation-duration-fast;
+  }
+
+  &__button {
+    width: @slider-button-width;
+    height: @slider-button-height;
+    background-color: @slider-button-background-color;
+    border-radius: @slider-button-border-radius;
+    box-shadow: @slider-button-box-shadow;
+
+    &-wrapper {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      transform: translate3d(50%, -50%, 0);
+    }
+  }
+
+  &--disabled {
+    opacity: @slider-disabled-opacity;
+  }
+
+  &--vertical {
+    display: inline-block;
+    height: 100%;
+
+    .van-slider__button-wrapper {
+      top: auto;
+      bottom: 0;
+      transform: translate3d(50%, 50%, 0);
+    }
+  }
+}

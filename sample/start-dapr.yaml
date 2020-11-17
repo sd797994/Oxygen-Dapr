@@ -21,8 +21,8 @@ spec:
         app: oxygen-dapr-sample-client
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "callservice"
-        dapr.io/port: "80"
+        dapr.io/app-id: "callservice"
+        dapr.io/app-port: "80"
     spec:
       containers:
         - name: web
@@ -54,8 +54,8 @@ spec:
         app: oxygen-dapr-sample-server
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "testservice"
-        dapr.io/port: "80"
+        dapr.io/app-id: "testservice"
+        dapr.io/app-port: "80"
     spec:
       containers:
         - name: web
