@@ -5,12 +5,10 @@ using Microsoft.AspNetCore.Hosting;
 using Oxygen.Client.ServerSymbol;
 using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
-using Oxygen.Mesh.Dapr.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Oxygen.Mesh.Dapr
 {
@@ -49,12 +47,11 @@ namespace Oxygen.Mesh.Dapr
                             try
                             {
                                 var typeBuilder = ActorProxyBuilder.GetType(x, implType, methods.ToArray());
-                                var delegateMethod = (Func<ActorStateModel, ILifetimeScope, Task>)implType.GetMethod("SaveData").CreateDelegate(typeof(Func<ActorStateModel, ILifetimeScope, Task>), lifetimeScope.Resolve(x));
-                                Func <ActorTypeInformation, ActorService> createFunc = (info) => new ActorService(info, (actorService, actorId) =>
+                                Func<ActorTypeInformation, ActorService> createFunc = (info) => new ActorService(info, (actorService, actorId) =>
                                 {
                                     OxygenIocContainer.BuilderIocContainer(lifetimeScope);
                                     var obj = Activator.CreateInstance(typeBuilder.proxyType, new object[] { actorService, actorId, lifetimeScope }) as Actor;
-                                    ActorStateSubscriber.RegisterHandler(implType.BaseType.GetProperty("ActorData").PropertyType.FullName, delegateMethod);
+                                    ActorStateSubscriber.RegisterHandler(implType.BaseType.GetProperty("ActorData").PropertyType.FullName, typeBuilder.SaveDataFunc);
                                     return obj;
                                 });
                                 typeof(ActorRuntime).GetMethod("RegisterActor").MakeGenericMethod(typeBuilder.proxyType).Invoke(actorRuntime, new object[] { createFunc });

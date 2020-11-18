@@ -54,11 +54,14 @@ namespace Oxygen.Mesh.Dapr
         }
         public async Task RegisterTimer(int reminderSeconds)
         {
-            await RegisterTimerAsync("SaveActorDataTimer", this.TimerCallBack, null, TimeSpan.FromSeconds(reminderSeconds), TimeSpan.FromSeconds(reminderSeconds));
+            await RegisterTimerAsync("SaveActorDataTimer", this.TimerCallBack, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(reminderSeconds));
+        }
+        public async Task UnRegisterTimer()
+        {
+            await UnregisterReminderAsync("SaveActorDataTimer");
         }
         private async Task TimerCallBack(object data)
         {
-            //激活actor之后立即发送一次持久化消息，避免上一个actor关闭时没有成功发送持久化消息
             actorStateMessage.ActorData = ActorData;
             await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
             await Task.CompletedTask;
@@ -75,7 +78,10 @@ namespace Oxygen.Mesh.Dapr
                 if (ActorData.IsDelete)
                 {
                     if (await StateManager.TryRemoveStateAsync("ActorData"))
+                    {
                         ActorData = null;
+                        await UnRegisterTimer();
+                    }
                 }
                 else
                 {

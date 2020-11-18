@@ -12,6 +12,6 @@ namespace Oxygen.Mesh.Dapr
     public abstract class BaseActorService<T> where T: ActorStateModel
     {
         public T ActorData { get; set; }
-        public abstract Task SaveData(ActorStateModel model, ILifetimeScope scope);
+        public abstract Task SaveData(T model, ILifetimeScope scope);
     }
 }

@@ -15,7 +15,7 @@ namespace Oxygen.Mesh.Dapr
 {
     internal class ActorProxyBuilder
     {
-        public static (Type interfaceType, Type proxyType) GetType(Type interfaceServiceType, Type implType, MethodInfo[] methods)
+        public static (Type interfaceType, Type proxyType, Func<ActorStateModel, ILifetimeScope, Task> SaveDataFunc) GetType(Type interfaceServiceType, Type implType, MethodInfo[] methods)
         {
 
             var asmName = new AssemblyName("Oxygen.Mesh.Dapr.DynamicActor");
@@ -118,7 +118,19 @@ namespace Oxygen.Mesh.Dapr
                 il.Emit(OpCodes.Ret);
                 typeBldr.DefineMethodOverride(methodBldr, inferfacemethod);
             }
-            return (interfaceType, typeBldr.CreateType());
+            var saveDataArgs = new Type[] { typeof(ActorStateModel), typeof(ILifetimeScope) };
+            var saveData = new DynamicMethod("SaveData", typeof(Task), saveDataArgs);
+            var ilsave = saveData.GetILGenerator();
+            ilsave.DeclareLocal(typeof(Task));
+            ilsave.Emit(OpCodes.Nop);
+            ilsave.Emit(OpCodes.Ldarg_1);
+            ilsave.Emit(OpCodes.Call, typeof(ResolutionExtensions).GetMethod("Resolve", new Type[] { typeof(IComponentContext) }).MakeGenericMethod(interfaceServiceType));
+            ilsave.Emit(OpCodes.Ldarg_0);
+            ilsave.Emit(OpCodes.Ldarg_1);
+            ilsave.Emit(OpCodes.Call, implType.GetMethod("SaveData"));
+            ilsave.Emit(OpCodes.Ret);
+            Func<ActorStateModel, ILifetimeScope, Task> saveDataFunc = (Func<ActorStateModel, ILifetimeScope, Task>)saveData.CreateDelegate(typeof(Func<ActorStateModel, ILifetimeScope, Task>));
+            return (interfaceType, typeBldr.CreateType(), saveDataFunc);
         }
     }
 }

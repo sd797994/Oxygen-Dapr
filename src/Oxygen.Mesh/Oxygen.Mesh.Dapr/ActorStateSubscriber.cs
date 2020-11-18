@@ -28,10 +28,6 @@ namespace Oxygen.Mesh.Dapr
             {
                 OxygenIocContainer.Resolve<ILogger>().LogError($"Actor持久化处理器注册失败,Actor名：{actorName}");
             }
-            else
-            {
-                OxygenIocContainer.Resolve<ILogger>().LogInfo($"Actor持久化处理器注册成功,Actor名：{actorName}");
-            }
         }
         public async Task Handle(ActorStateMessage notification, CancellationToken cancellationToken)
         {

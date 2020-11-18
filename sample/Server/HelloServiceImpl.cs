@@ -29,10 +29,10 @@ namespace Server
             return await Task.FromResult(new OutDto() { word = $"hello {ActorData.Index}" });
         }
 
-        public override async Task SaveData(ActorStateModel data, ILifetimeScope scope)
+        public override async Task SaveData(MyActor data, ILifetimeScope scope)
         {
             if (data != null)
-                await scope.Resolve<IHelloRepository>().SaveData(data as MyActor);
+                await scope.Resolve<IHelloRepository>().SaveData(data);
             await Task.CompletedTask;
         }
     }
@@ -48,13 +48,14 @@ namespace Server
     }
     public class HelloRepository: IHelloRepository
     {
+        public Guid? Id { get; set; }
         public HelloRepository()
         {
-
+            Id = Id ?? Guid.NewGuid();
         }
         public async Task SaveData(MyActor actor)
         {
-            Console.WriteLine($"实例持久化中：{actor?.Index}");
+            Console.WriteLine($"仓储实例ID：{Id}，持久化对象：{actor?.Index}");
             await Task.CompletedTask;
         }
     }
