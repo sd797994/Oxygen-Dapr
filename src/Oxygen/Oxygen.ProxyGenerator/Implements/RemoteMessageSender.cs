@@ -46,13 +46,12 @@ namespace Oxygen.ProxyGenerator.Implements
             }
             catch (Exception e)
             {
-                logger.LogError($"客户端调用异常：{e.Message},接口地址：{serverName},调用堆栈{e.StackTrace.ToString()}");
+                logger.LogError($"客户端调用异常：{e.Message},接口地址：{serverName},调用堆栈{e.StackTrace}");
             }
             return result;
         }
         internal HttpRequestMessage BuildMessage(string host, string url, object data, SendType sendType)
         {
-            //本地联调集群地址：api.oxygen-dapr.com:31889
             //集群内地址：localhost:3500
             //todo: 由于event和actor会被dapr拦截使用Text.Json进行序列化封装，导致无法使用messagepack序列/反序列化,所以暂时只能采用json
             var basepath = $"http://localhost:3500/";

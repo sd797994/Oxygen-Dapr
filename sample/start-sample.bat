@@ -23,7 +23,6 @@ rd /S /Q pub
 dotnet publish -o pub
 docker build . -t oxygen-dapr-sample-server:latest -f Dockerfile.Debug
 cd ../
-kubectl delete -f start-dapr-debug.yaml
 kubectl apply -f start-dapr-debug.yaml
 )
 docker system prune -f

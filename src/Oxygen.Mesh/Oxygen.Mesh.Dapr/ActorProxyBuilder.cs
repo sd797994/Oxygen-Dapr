@@ -79,7 +79,7 @@ namespace Oxygen.Mesh.Dapr
                 il.Emit(OpCodes.Ldfld, fieldImpl);
                 il.Emit(OpCodes.Callvirt, typeof(ILifetimeScope).GetMethod("BeginLifetimeScope", new Type[] { }));
                 il.Emit(OpCodes.Stloc_0);
-                Label tryLabel = il.BeginExceptionBlock();
+                il.BeginExceptionBlock();
                 il.Emit(OpCodes.Nop);
                 il.Emit(OpCodes.Ldloc_0);
                 il.Emit(OpCodes.Call, typeof(ResolutionExtensions).GetMethod("Resolve", new Type[] { typeof(IComponentContext) }).MakeGenericMethod(interfaceServiceType));
