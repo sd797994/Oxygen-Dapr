@@ -1,12 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Oxygen.Client\Oxygen.Client.ServerSymbol\Oxygen.Client.ServerSymbol.csproj" />
-    <ProjectReference Include="..\..\src\Oxygen.Mesh\Oxygen.Mesh.Dapr\Oxygen.Mesh.Dapr.csproj" />
+    <!--<PackageReference Include="Oxygen-Dapr" Version="0.0.2" />-->
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Oxygen\Oxygen.IocModule\Oxygen.IocModule.csproj" />
   </ItemGroup>
 
 </Project>

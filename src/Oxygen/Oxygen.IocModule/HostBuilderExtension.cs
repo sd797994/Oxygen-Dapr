@@ -18,7 +18,7 @@ namespace Oxygen.IocModule
         {
             //注入通用服务
             builder.RegisterModule(new Common.Module());
-            builder.RegisterModule(new IServer.Module());
+            builder.RegisterModule(new Server.Kestrel.Module());
             builder.RegisterModule(new ProxyGenerator.Module());
             builder.RegisterModule(new Mesh.Dapr.Module());
             builder.RegisterModule(new Client.ServerProxyFactory.Module());

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -16,11 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Oxygen.Client\Oxygen.Client.ServerProxyFactory\Oxygen.Client.ServerProxyFactory.csproj" />
-    <ProjectReference Include="..\..\src\Oxygen.Server\Oxygen.Server.Kestrel\Oxygen.Server.Kestrel.csproj" />
-    <ProjectReference Include="..\..\src\Oxygen\Oxygen.Common\Oxygen.Common.csproj" />
-    <ProjectReference Include="..\..\src\Oxygen\Oxygen.IocModule\Oxygen.IocModule.csproj" />
-    <ProjectReference Include="..\..\src\Oxygen\Oxygen.ProxyGenerator\Oxygen.ProxyGenerator.csproj" />
     <ProjectReference Include="..\RemoteInterface\RemoteInterface.csproj" />
   </ItemGroup>
 </Project>

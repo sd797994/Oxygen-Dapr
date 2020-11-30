@@ -11,3 +11,4 @@ Debug
 Release
 obj
 *.user
+/nugetpack

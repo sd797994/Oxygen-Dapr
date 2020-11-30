@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="pub\**" />
+    <EmbeddedResource Remove="pub\**" />
+    <None Remove="pub\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
   </ItemGroup>
 
@@ -13,6 +19,7 @@
     <ProjectReference Include="..\..\Oxygen.Client\Oxygen.Client.ServerSymbol\Oxygen.Client.ServerSymbol.csproj" />
     <ProjectReference Include="..\..\Oxygen.Mesh\Oxygen.Mesh.Dapr\Oxygen.Mesh.Dapr.csproj" />
     <ProjectReference Include="..\..\Oxygen.Server\Oxygen.IServer\Oxygen.IServer.csproj" />
+    <ProjectReference Include="..\..\Oxygen.Server\Oxygen.Server.Kestrel\Oxygen.Server.Kestrel.csproj" />
     <ProjectReference Include="..\Oxygen.Common\Oxygen.Common.csproj" />
     <ProjectReference Include="..\Oxygen.ProxyGenerator\Oxygen.ProxyGenerator.csproj" />
   </ItemGroup>
