@@ -7,6 +7,7 @@ using Oxygen.Server.Kestrel.Interface.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,19 +64,26 @@ namespace Oxygen.Server.Kestrel.Implements
             subDelegate = _subDelegate;
             return result;
         }
-        static Type DelegateType = typeof(RequestDelegate<,>);
+        static Type DelegateType = typeof(RequestDelegate<,,>);
         static BaseRequestDelegate CreateRequestDelegate(Type t, string serverName, MethodInfo m, ILogger logger, IMessageHandler messageHandler)
         {
             //所有rpc默认只能处理一个入参
             var inputType = m.GetParameters().FirstOrDefault().ParameterType;
             //ReturnType必须是一个task<T>
             var outputType = m.ReturnType.GetGenericArguments().FirstOrDefault();
-            var genericdelegateType = DelegateType.MakeGenericType(inputType, outputType);
-            var target = OxygenIocContainer.Resolve(t);
-            if (target is DispatchProxy)
+            var genericdelegateType = DelegateType.MakeGenericType(t, inputType, outputType);
+            if (ReflectionHelper.GetTypeByInterface(t) == null)
                 return null;
             else
-                return Activator.CreateInstance(genericdelegateType, new object[] { serverName, m, target, logger, messageHandler }) as BaseRequestDelegate;
+                return Activator.CreateInstance(genericdelegateType, new object[] { serverName, m, logger, messageHandler }) as BaseRequestDelegate;
+        }
+        public static Func<TObj, Tin, Tout> CreateMethodDelegate<TObj, Tin, Tout>(MethodInfo method)
+        {
+            var mParameter = Expression.Parameter(typeof(TObj), "m");
+            var pParameter = Expression.Parameter(typeof(Tin), "p");
+            var mcExpression = Expression.Call(mParameter, method, Expression.Convert(pParameter, typeof(Tin)));
+            var reExpression = Expression.Convert(mcExpression, typeof(Tout));
+            return Expression.Lambda<Func<TObj, Tin, Tout>>(reExpression, mParameter, pParameter).Compile();
         }
     }
 }

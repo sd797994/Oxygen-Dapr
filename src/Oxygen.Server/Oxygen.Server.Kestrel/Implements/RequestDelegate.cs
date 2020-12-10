@@ -16,18 +16,18 @@ using System.Threading.Tasks;
 
 namespace Oxygen.Server.Kestrel.Implements
 {
-    internal class RequestDelegate<Tin, Tout> : BaseRequestDelegate where Tin : class, new() where Tout : class
+    internal class RequestDelegate<Tobj, Tin, Tout> : BaseRequestDelegate where Tin : class, new() where Tout : class
     {
         private readonly ILogger logger;
         private readonly IMessageHandler messageHandler;
-        public RequestDelegate(string serverName, MethodInfo method, object target, ILogger logger, IMessageHandler messageHandler)
+        public RequestDelegate(string serverName, MethodInfo method, ILogger logger, IMessageHandler messageHandler)
         {
             Path = new PathString($"/{serverName}/{method.Name}".ToLower());
-            MethodDelegate = (Func<Tin, Task<Tout>>)method.CreateDelegate(typeof(Func<Tin, Task<Tout>>), target);
+            MethodDelegate = RequestDelegateFactory.CreateMethodDelegate<Tobj, Tin, Task<Tout>>(method);
             this.logger = logger;
             this.messageHandler = messageHandler;
         }
-        internal Func<Tin, Task<Tout>> MethodDelegate { get; set; }
+        internal Func<Tobj, Tin, Task<Tout>> MethodDelegate { get; set; }
         internal override async Task Excute(HttpContext ctx, ILifetimeScope lifetimeScope)
         {
             using var scope = lifetimeScope.BeginLifetimeScope();
@@ -43,7 +43,7 @@ namespace Oxygen.Server.Kestrel.Implements
                     messageType = MessageType.MessagePack;
                 }
                 var messageobj = await messageHandler.ParseMessage<Tin>(ctx, messageType);
-                var localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(messageobj, MethodDelegate);
+                var localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(scope.Resolve<Tobj>(), messageobj, MethodDelegate);
                 if (localCallbackResult != null)
                 {
                     result = messageHandler.BuildMessage(localCallbackResult, messageType);

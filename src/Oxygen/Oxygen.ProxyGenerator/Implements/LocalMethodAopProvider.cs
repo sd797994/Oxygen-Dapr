@@ -36,14 +36,14 @@ namespace Oxygen.ProxyGenerator.Implements
         /// <param name="param"></param>
         /// <param name="method"></param>
         /// <returns></returns>
-        public static async Task<Tout> UsePipelineHandler<Tin, Tout>(Tin param, Func<Tin, Task<Tout>> method) where Tin : class, new() where Tout : class
+        public static async Task<Tout> UsePipelineHandler<Tobj, Tin, Tout>(Tobj obj, Tin param, Func<Tobj, Tin, Task<Tout>> method) where Tin : class, new() where Tout : class
         {
             try
             {
                 Tout result = default;
                 if (BeforeFunc != null)
                     await BeforeFunc(param);
-                result = await method(param);
+                result = await method(obj,param);
                 if (AfterFunc != null)
                     await AfterFunc(result);
                 return result;

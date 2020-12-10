@@ -26,8 +26,7 @@ namespace Oxygen.Mesh.Dapr
             //获取所有标记为remote的method构造具体的delegate
             remoteservice.ToList().ForEach(x =>
             {
-                var target = OxygenIocContainer.Resolve(x);
-                if ((target is DispatchProxy) == false)
+                if (ReflectionHelper.GetTypeByInterface(x) != null)
                 {
                     var implType = ReflectionHelper.GetTypeByInterface(x);
                     if (implType != null)
