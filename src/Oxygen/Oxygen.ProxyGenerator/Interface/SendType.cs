@@ -8,6 +8,9 @@ namespace Oxygen.ProxyGenerator.Interface
     {
         invoke = 0,
         publish = 1,
-        actors = 2
+        actors = 2,
+        setState = 3,
+        getState = 4,
+        delState = 5
     }
 }

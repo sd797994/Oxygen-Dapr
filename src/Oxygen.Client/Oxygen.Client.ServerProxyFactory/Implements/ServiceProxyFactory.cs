@@ -11,19 +11,9 @@ namespace Oxygen.Client.ServerProxyFactory.Implements
 {
     public class ServiceProxyFactory : IServiceProxyFactory
     {
-        private readonly IRemoteMessageSender messageSender;
-        public ServiceProxyFactory(IRemoteMessageSender messageSender)
-        {
-            this.messageSender = messageSender;
-        }
         public T CreateProxy<T>() where T : class
         {
             return OxygenIocContainer.Resolve<T>();
-        }
-        public async Task<DefaultEventPublishResponse> SendEvent<T>(T input) where T : IEvent
-        {
-            //todo: pubsubname为dapr外部申明的组件名，此处后期需要扩展为从配置节读取
-            return await messageSender.SendMessage<DefaultEventPublishResponse>("pubsub", $"/{input.Topic}", input, SendType.publish);
         }
     }
 }

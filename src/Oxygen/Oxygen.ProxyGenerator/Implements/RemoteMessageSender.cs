@@ -35,13 +35,13 @@ namespace Oxygen.ProxyGenerator.Implements
                 var responseMessage = await HttpClient.SendAsync(sendMessage);
                 if (responseMessage.IsSuccessStatusCode)
                 {
-                    if (sendType == SendType.publish)
-                        return new T();//事件只要返回200代表发送成功
+                    if (sendType == SendType.publish || sendType == SendType.setState || sendType == SendType.delState)
+                        return new T();//事件和状态操作只要返回200代表发送成功
                     return ReceiveMessage<T>(sendType, await responseMessage.Content.ReadAsByteArrayAsync());
                 }
                 else
                 {
-                    logger.LogError($"客户端调用http请求异常,状态码：{responseMessage?.StatusCode}");
+                    logger.LogError($"客户端调用http请求异常,状态码：{responseMessage?.StatusCode},回调内容：{await responseMessage.Content.ReadAsStringAsync()}");
                 }
             }
             catch (Exception e)
@@ -76,6 +76,20 @@ namespace Oxygen.ProxyGenerator.Implements
                     request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
                     stringjson = serialize.SerializesJson(data);
                     request.Content = new StringContent(stringjson);
+                    return request;
+                case SendType.setState:
+                    url = $"{basepath}v1.0/state/{host}";
+                    request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
+                    stringjson = serialize.SerializesJson(data);
+                    request.Content = new StringContent(stringjson);
+                    return request;
+                case SendType.getState:
+                    url = $"{basepath}v1.0/state/{host}{url}";
+                    request = new HttpRequestMessage(HttpMethod.Get, url) { Version = new Version(1, 1) };
+                    return request;
+                case SendType.delState:
+                    url = $"{basepath}v1.0/state/{host}{url}";
+                    request = new HttpRequestMessage(HttpMethod.Delete, url) { Version = new Version(1, 1) };
                     return request;
             }
             return default;

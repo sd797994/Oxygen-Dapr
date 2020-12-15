@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
+using Oxygen.Client.ServerProxyFactory.Interface;
 using Oxygen.Mesh.Dapr;
 using Oxygen.Mesh.Dapr.Model;
 using RemoteInterface;
@@ -11,9 +12,11 @@ namespace Server
     public class HelloServiceImpl : BaseActorService<MyActor>, IHelloService
     {
         private readonly ILogger<HelloServiceImpl> logger;
-        public HelloServiceImpl(ILogger<HelloServiceImpl> logger)
+        private readonly IStateManager stateManager;
+        public HelloServiceImpl(ILogger<HelloServiceImpl> logger, IStateManager stateManager)
         {
             this.logger = logger;
+            this.stateManager = stateManager;
         }
         public async Task<OutDto> GetUserInfo(InputDto input)
         {

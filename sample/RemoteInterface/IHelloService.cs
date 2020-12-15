@@ -1,6 +1,7 @@
 ﻿using Oxygen.Client.ServerSymbol;
 using Oxygen.Client.ServerSymbol.Actors;
 using Oxygen.Client.ServerSymbol.Events;
+using Oxygen.Client.ServerSymbol.Store;
 using Oxygen.Mesh.Dapr;
 using System;
 using System.Collections.Generic;
@@ -34,5 +35,19 @@ namespace RemoteInterface
     {
         public string name { get; set; }
         public override string Topic { get => "test"; }
+        public override string PubSubName { get => "pubsub"; }//和component一致
+    }
+    public class TestStateDto : StateStore<OutDto>
+    {
+        public TestStateDto(string key)
+        {
+            this.Key = key;
+        }
+        public TestStateDto(string key, OutDto data)
+        {
+            this.Key = key;
+            this.Data = data;
+        }
+        public override string StoreName => "statestore";//和component一致
     }
 }

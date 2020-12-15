@@ -13,9 +13,9 @@ namespace Oxygen.Client.ServerSymbol.Events
         public string status { get => "SUCCESS"; set => status = value; }
     }
     /// <summary>
-    /// 默认的发布事件回调类
+    /// 默认的回调类
     /// </summary>
-    public class DefaultEventPublishResponse
+    public class DefaultResponse
     {
 
     }

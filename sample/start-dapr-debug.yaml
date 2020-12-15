@@ -21,12 +21,12 @@ spec:
         app: oxygen-dapr-sample-client
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "callservice"
-        dapr.io/port: "80"
+        dapr.io/app-id: "callservice"
+        dapr.io/app-port: "80"
     spec:
       containers:
         - name: web
-          image: oxygen-dapr-sample-client:latest
+          image: oxygen-dapr-sample-client:debug
           imagePullPolicy: Never
           ports:
             - containerPort: 80
@@ -35,18 +35,13 @@ spec:
               name: v1
             - mountPath: /remote_debugger:rw
               name: v2
-            - mountPath: /root/.vs-debugger
-              name: v3
       volumes:
         - name: v1
           hostPath:
-            path: /e/dotnet_project/Oxygen-Dapr/sample/Client/pub
+            path: /run/desktop/mnt/host/e/dotnet_project/Oxygen-Dapr/sample/Client/bin/Debug/net5.0
         - name: v2
           hostPath:
-            path: /c/Users/Administrator/vsdbg/vs2017u5
-        - name: v3
-          hostPath:
-            path: /e/dockerdebugger/.vs-debugger
+            path: /run/desktop/mnt/host/c/Users/Administrator/vsdbg/vs2017u5
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -71,12 +66,12 @@ spec:
         app: oxygen-dapr-sample-server
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/id: "testservice"
-        dapr.io/port: "80"
+        dapr.io/app-id: "testservice"
+        dapr.io/app-port: "80"
     spec:
       containers:
         - name: web
-          image: oxygen-dapr-sample-server:latest
+          image: oxygen-dapr-sample-server:debug
           imagePullPolicy: Never
           ports:
             - containerPort: 80
@@ -85,18 +80,13 @@ spec:
               name: v1
             - mountPath: /remote_debugger:rw
               name: v2
-            - mountPath: /root/.vs-debugger
-              name: v3
       volumes:
         - name: v1
           hostPath:
-            path: /e/dotnet_project/Oxygen-Dapr/sample/Server/pub
+            path: /run/desktop/mnt/host/e/dotnet_project/Oxygen-Dapr/sample/Server/bin/Debug/net5.0
         - name: v2
           hostPath:
-            path: /c/Users/Administrator/vsdbg/vs2017u5
-        - name: v3
-          hostPath:
-            path: /e/dockerdebugger/.vs-debugger
+            path: /run/desktop/mnt/host/c/Users/Administrator/vsdbg/vs2017u5
 ---
 apiVersion: v1
 kind: Service 
@@ -136,5 +126,5 @@ spec:
       paths:
       - path: /
         backend:
-          serviceName: nginx-ingress-dapr
+          serviceName: callservice-dapr
           servicePort: 80

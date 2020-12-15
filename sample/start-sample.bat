@@ -14,15 +14,14 @@ kubectl delete -f start-dapr.yaml
 kubectl apply -f start-dapr.yaml
 ) ^
 else ( 
-cd Client
-rd /S /Q pub
-dotnet publish -o pub
-docker build . -t oxygen-dapr-sample-client:latest -f Dockerfile.Debug
+cd ../
+dotnet build Oxygen.sln
+cd sample/Client
+docker build . -t oxygen-dapr-sample-client:debug -f Dockerfile.Debug
 cd ../Server
-rd /S /Q pub
-dotnet publish -o pub
-docker build . -t oxygen-dapr-sample-server:latest -f Dockerfile.Debug
+docker build . -t oxygen-dapr-sample-server:debug -f Dockerfile.Debug
 cd ../
 kubectl apply -f start-dapr-debug.yaml
 )
 docker system prune -f
+kubectl get po -w
