@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Microsoft.Extensions.DependencyInjection;
+using Oxygen.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,7 +9,6 @@ namespace Oxygen.IocModule
 {
     public static class HostBuilderExtension
     {
-        public static int Port { get; set; }
         /// <summary>
         /// 依赖注入IOC模块
         /// </summary>
@@ -28,9 +28,10 @@ namespace Oxygen.IocModule
         /// 注入web服务
         /// </summary>
         /// <param name="collection"></param>
-        public static void StartOxygenServer(this IServiceCollection collection, int port = 80)
+        public static void StartOxygenServer(this IServiceCollection collection, Action<DaprConfig> action)
         {
-            Port = port;
+            action(DaprConfig.GetCurrent());
+            //Port = port;
             collection.AddHttpClient();
             collection.AddHostedService<OxygenHostService>();
         }

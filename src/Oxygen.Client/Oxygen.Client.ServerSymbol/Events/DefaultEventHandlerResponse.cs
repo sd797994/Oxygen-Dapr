@@ -11,6 +11,10 @@ namespace Oxygen.Client.ServerSymbol.Events
     public class DefaultEventHandlerResponse
     {
         public string status { get => "SUCCESS"; set => status = value; }
+        public static DefaultEventHandlerResponse Default()
+        {
+            return new DefaultEventHandlerResponse();
+        }
     }
     /// <summary>
     /// 默认的回调类

@@ -31,13 +31,13 @@ namespace Client
         public async Task<InputDto> RemoteCallTest(InputDto input)
         {
             var helloService = serviceProxyFactory.CreateProxy<IHelloService>();
-            await stateManager.SetState(new TestStateDto("mykey", new OutDto() { word = "mystate" }));
-            var getState = await stateManager.GetState(new TestStateDto("mykey"));
+            await stateManager.SetState(new TestStateDto("mykey", new MyTestStateContent() { Name = "mystate" }));
+            var getState = await stateManager.GetState<MyTestStateContent>(new TestStateDto("mykey"));
             var delState = await stateManager.DelState(new TestStateDto("mykey"));
             var invokeresult = await helloService.GetUserInfo(new InputDto() { name = "xiaoming" });
-            var eventresult = await eventBus.SendEvent(new TestEventDto() { name = "xiaoming" });
+            var eventresult = await eventBus.SendEvent(new TestEventDto() { myword = "abc" });
             var actorresult = await helloService.GetUserInfoByActor(new ActorInputDto() { name = "xiaoming", ActorId = "1" });
-            return new InputDto() { name = $"普通调用成功，回调：{JsonSerializer.Serialize(invokeresult)},事件发送{(eventresult != null ? "成功" : "失败")},状态写入成功，值：{getState.word},actor调用成功，回调：{JsonSerializer.Serialize(actorresult)}" };
+            return new InputDto() { name = $"普通调用成功，回调：{JsonSerializer.Serialize(invokeresult)},事件发送{(eventresult != null ? "成功" : "失败")},状态写入成功，值：{getState.Name},actor调用成功，回调：{JsonSerializer.Serialize(actorresult)}" };
         }
         public async Task<MultipleTestOutput> MultipleTest(MultipleTestInput input)
         {
@@ -54,7 +54,7 @@ namespace Client
                 Stopwatch _sw_item = new Stopwatch();
                 _sw_item.Start();
                 var invokeresult = await helloService.GetUserInfo(new InputDto() { name = "小明" });
-                var eventresult = await eventBus.SendEvent(new TestEventDto() { name = "小明" });
+                var eventresult = await eventBus.SendEvent(new TestEventDto() { myword = "abc" });
                 _sw_item.Stop();
                 if (invokeresult != null)
                 {

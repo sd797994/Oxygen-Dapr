@@ -22,8 +22,8 @@ namespace Server
         }
         public async Task<DefaultEventHandlerResponse> SubscribeByUserInfoEvent(EventHandleRequest<TestEventDto> input)
         {
-            logger.LogInformation($"订阅器收到消息：{JsonSerializer.Serialize(input,new JsonSerializerOptions() {Encoder= JavaScriptEncoder.Create(UnicodeRanges.All) })}");
-            return await Task.FromResult(new DefaultEventHandlerResponse());
+            logger.LogInformation($"订阅器收到消息：{JsonSerializer.Serialize(input.data, new JsonSerializerOptions() { Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) })}");
+            return DefaultEventHandlerResponse.Default();
         }
     }
 }

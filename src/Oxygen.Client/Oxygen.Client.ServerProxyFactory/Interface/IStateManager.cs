@@ -10,8 +10,8 @@ namespace Oxygen.Client.ServerProxyFactory.Interface
 {
     public interface IStateManager
     {
-        Task<DefaultResponse> SetState<T>(StateStore<T> input) where T : class, new();
-        Task<DefaultResponse> DelState<T>(StateStore<T> input) where T : class, new();
-        Task<T> GetState<T>(StateStore<T> input) where T : class, new();
+        Task<DefaultResponse> SetState(StateStore input);
+        Task<DefaultResponse> DelState(StateStore input);
+        Task<T> GetState<T>(StateStore input) where T : class, new();
     }
 }

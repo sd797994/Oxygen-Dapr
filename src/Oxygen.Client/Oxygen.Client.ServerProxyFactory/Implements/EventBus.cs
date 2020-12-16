@@ -1,5 +1,6 @@
 ﻿using Oxygen.Client.ServerProxyFactory.Interface;
 using Oxygen.Client.ServerSymbol.Events;
+using Oxygen.Common;
 using Oxygen.ProxyGenerator.Interface;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace Oxygen.Client.ServerProxyFactory.Implements
         }
         public async Task<DefaultResponse> SendEvent<T>(T input) where T : IEvent
         {
-            return await messageSender.SendMessage<DefaultResponse>(input.PubSubName, $"/{input.Topic}", input, SendType.publish);
+            return await messageSender.SendMessage<DefaultResponse>(DaprConfig.GetCurrent().PubSubCompentName, $"/{input.Topic}", input, SendType.publish);
         }
     }
 }

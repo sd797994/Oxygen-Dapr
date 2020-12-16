@@ -33,21 +33,25 @@ namespace RemoteInterface
     }
     public class TestEventDto : IEvent
     {
-        public string name { get; set; }
         public override string Topic { get => "test"; }
-        public override string PubSubName { get => "pubsub"; }//和component一致
+        public string myword { get; set; }
     }
-    public class TestStateDto : StateStore<OutDto>
+    public class TestStateDto : StateStore
     {
         public TestStateDto(string key)
         {
             this.Key = key;
         }
-        public TestStateDto(string key, OutDto data)
+        public TestStateDto(string key, object data)
         {
             this.Key = key;
             this.Data = data;
         }
-        public override string StoreName => "statestore";//和component一致
+        public override string Key { get; set; }
+        public override object Data { get; set; }
+    }
+    public class MyTestStateContent
+    {
+        public string Name { get; set; }
     }
 }

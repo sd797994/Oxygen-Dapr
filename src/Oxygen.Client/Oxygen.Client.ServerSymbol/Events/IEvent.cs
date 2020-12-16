@@ -9,7 +9,6 @@ namespace Oxygen.Client.ServerSymbol.Events
     /// </summary>
     public abstract class IEvent
     {
-        public abstract string PubSubName { get; }
         public abstract string Topic { get; }
     }
 }

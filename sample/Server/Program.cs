@@ -34,7 +34,7 @@ namespace Server
             .ConfigureServices((context, services) =>
             {
                 //注册成为oxygen服务节点
-                services.StartOxygenServer();
+                services.StartOxygenServer((config) => { config.Port = 80; config.PubSubCompentName = "pubsub"; config.StateStoreCompentName = "statestore"; });
                 //注册全局拦截器
                 LocalMethodAopProvider.RegisterPipelineHandler(async (obj) =>
                 {

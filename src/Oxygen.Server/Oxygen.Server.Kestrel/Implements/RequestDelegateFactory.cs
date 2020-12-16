@@ -1,5 +1,6 @@
 ﻿using Oxygen.Client.ServerSymbol;
 using Oxygen.Client.ServerSymbol.Events;
+using Oxygen.Common;
 using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
 using Oxygen.Server.Kestrel.Interface;
@@ -46,7 +47,7 @@ namespace Oxygen.Server.Kestrel.Implements
             {
                 x.GetMethods().ToList().ForEach(y =>
                 {
-                    if(y.ReturnType == typeof(Task<DefaultEventHandlerResponse>) && y.GetParameters().Any()
+                    if (y.ReturnType == typeof(Task<DefaultEventHandlerResponse>) && y.GetParameters().Any()
                            && y.GetParameters().FirstOrDefault().ParameterType.IsGenericType
                             && y.GetParameters().FirstOrDefault().ParameterType.GetGenericTypeDefinition() == typeof(EventHandleRequest<>))
                     {
@@ -55,7 +56,7 @@ namespace Oxygen.Server.Kestrel.Implements
                         {
                             result.Add(requestDelegate);
                             var param = Activator.CreateInstance(y.GetParameters().FirstOrDefault().ParameterType.GetGenericArguments()[0]) as IEvent;
-                            _subDelegate.Add(new SubscribeModel(param.PubSubName, param.Topic, requestDelegate.Path));
+                            _subDelegate.Add(new SubscribeModel(DaprConfig.GetCurrent().PubSubCompentName, param.Topic, requestDelegate.Path));
                         }
                     }
                 });

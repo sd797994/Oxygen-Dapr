@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Oxygen.Client.ServerSymbol.Store
 {
-    public abstract class StateStore<T>
+    public abstract class StateStore
     {
-        public abstract string StoreName { get; }
-        public string Key { get; set; }
-        public T Data { get; set; }
+        public abstract string Key { get; set; }
+        public abstract object Data { get; set; }
     }
 }

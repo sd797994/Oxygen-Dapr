@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 namespace Oxygen.Common.Implements
 {
@@ -55,7 +56,7 @@ namespace Oxygen.Common.Implements
                 return default(string);
             try
             {
-                return MessagePackSerializer.SerializeToJson(input);
+                return JsonSerializer.Serialize(input);
             }
             catch (Exception e)
             {
@@ -116,7 +117,7 @@ namespace Oxygen.Common.Implements
                 return default(T);
             try
             {
-                return MessagePackSerializer.Deserialize<T>(SerializesJsonString(input));
+                return JsonSerializer.Deserialize<T>(input);
             }
             catch (Exception e)
             {
@@ -136,7 +137,7 @@ namespace Oxygen.Common.Implements
                 return default;
             try
             {
-                return MessagePackSerializer.Deserialize(type, SerializesJsonString(input));
+                return JsonSerializer.Deserialize(input, type);
             }
             catch (Exception e)
             {

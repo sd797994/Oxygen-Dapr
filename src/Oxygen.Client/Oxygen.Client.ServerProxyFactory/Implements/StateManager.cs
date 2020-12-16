@@ -1,6 +1,7 @@
 ﻿using Oxygen.Client.ServerProxyFactory.Interface;
 using Oxygen.Client.ServerSymbol.Events;
 using Oxygen.Client.ServerSymbol.Store;
+using Oxygen.Common;
 using Oxygen.ProxyGenerator.Interface;
 using System;
 using System.Collections.Generic;
@@ -17,20 +18,17 @@ namespace Oxygen.Client.ServerProxyFactory.Implements
         {
             this.messageSender = messageSender;
         }
-
-        public async Task<DefaultResponse> DelState<T>(StateStore<T> input) where T : class, new()
+        public async Task<DefaultResponse> DelState(StateStore input)
         {
-            return await messageSender.SendMessage<DefaultResponse>(input.StoreName, $"/{input.Key}", null, SendType.delState);
+            return await messageSender.SendMessage<DefaultResponse>(DaprConfig.GetCurrent().StateStoreCompentName, $"/{input.Key}", null, SendType.delState);
         }
-
-        public async Task<T> GetState<T>(StateStore<T> input) where T : class, new()
+        public async Task<T> GetState<T>(StateStore input) where T : class, new()
         {
-            return await messageSender.SendMessage<T>(input.StoreName, $"/{input.Key}", null, SendType.getState);
+            return await messageSender.SendMessage<T>(DaprConfig.GetCurrent().StateStoreCompentName, $"/{input.Key}", null, SendType.getState);
         }
-
-        public async Task<DefaultResponse> SetState<T>(StateStore<T> input) where T : class, new()
+        public async Task<DefaultResponse> SetState(StateStore input)
         {
-            return await messageSender.SendMessage<DefaultResponse>(input.StoreName, "", new[] { new { key = input.Key, value = input.Data } }, SendType.setState);
+            return await messageSender.SendMessage<DefaultResponse>(DaprConfig.GetCurrent().StateStoreCompentName, "", new[] { new { key = input.Key, value = input.Data } }, SendType.setState);
         }
     }
 }
