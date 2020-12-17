@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Oxygen-Dapr" Version="0.0.4" />
+    <!--<PackageReference Include="Oxygen-Dapr" Version="0.0.4" />-->
   </ItemGroup>
 
   <ItemGroup>
-    <!--<ProjectReference Include="..\..\src\Oxygen\Oxygen.IocModule\Oxygen.IocModule.csproj" />-->
+    <ProjectReference Include="..\..\src\Oxygen\Oxygen.IocModule\Oxygen.IocModule.csproj" />
   </ItemGroup>
 
 </Project>

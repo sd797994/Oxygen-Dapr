@@ -43,7 +43,7 @@ namespace Oxygen.Server.Kestrel.Implements
                     messageType = MessageType.MessagePack;
                 }
                 var messageobj = await messageHandler.ParseMessage<Tin>(ctx, messageType);
-                var localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(scope.Resolve<Tobj>(), messageobj, MethodDelegate);
+                var localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(scope.Resolve<Tobj>(), messageobj, new OxygenHttpContextWapper(Path, ctx.Request.Headers.GetHeaderDictionary(), ctx.Request.Cookies.GetCookieDictionary()), MethodDelegate);
                 if (localCallbackResult != null)
                 {
                     result = messageHandler.BuildMessage(localCallbackResult, messageType);

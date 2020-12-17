@@ -26,7 +26,7 @@ namespace Oxygen.ProxyGenerator.Implements
             HttpClient = HttpClient ?? httpClientFactory.CreateClient();
             HttpClient.DefaultRequestHeaders.Connection.Add("keep-alive");
         }
-        public async Task<T> SendMessage<T>(string hostName, string serverName, object input, SendType sendType) where T : class, new()
+        public async Task<T> SendMessage<T>(string hostName, string serverName, object input, SendType sendType) where T : new()
         {
             T result = default;
             try
@@ -95,7 +95,7 @@ namespace Oxygen.ProxyGenerator.Implements
             return default;
         }
 
-        internal T ReceiveMessage<T>(SendType sendType, byte[] data) where T : class, new()
+        internal T ReceiveMessage<T>(SendType sendType, byte[] data) where T : new()
         {
             if (sendType == SendType.invoke)
                 return serialize.Deserializes<T>(data) ?? new T();

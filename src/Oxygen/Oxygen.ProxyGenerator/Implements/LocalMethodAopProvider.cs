@@ -10,7 +10,7 @@ namespace Oxygen.ProxyGenerator.Implements
     /// </summary>
     public class LocalMethodAopProvider
     {
-        static Func<object, Task> BeforeFunc;
+        static Func<object, OxygenHttpContextWapper, Task> BeforeFunc;
         static Func<object, Task> AfterFunc;
         static Func<Exception, Task<dynamic>> ExceptionFunc;
         /// <summary>
@@ -19,7 +19,7 @@ namespace Oxygen.ProxyGenerator.Implements
         /// <param name="beforeFunc"></param>
         /// <param name="afterFunc"></param>
         /// <param name="exceptionFunc"></param>
-        public static void RegisterPipelineHandler(Func<object, Task> beforeFunc = null, Func<object, Task> afterFunc = null, Func<Exception, Task<object>> exceptionFunc = null)
+        public static void RegisterPipelineHandler(Func<object, OxygenHttpContextWapper, Task> beforeFunc = null, Func<object, Task> afterFunc = null, Func<Exception, Task<object>> exceptionFunc = null)
         {
             if (beforeFunc != null)
                 BeforeFunc = beforeFunc;
@@ -36,14 +36,14 @@ namespace Oxygen.ProxyGenerator.Implements
         /// <param name="param"></param>
         /// <param name="method"></param>
         /// <returns></returns>
-        public static async Task<Tout> UsePipelineHandler<Tobj, Tin, Tout>(Tobj obj, Tin param, Func<Tobj, Tin, Task<Tout>> method) where Tin : class, new() where Tout : class
+        public static async Task<Tout> UsePipelineHandler<Tobj, Tin, Tout>(Tobj obj, Tin param, OxygenHttpContextWapper wapper, Func<Tobj, Tin, Task<Tout>> method) where Tin : class, new() where Tout : class
         {
             try
             {
                 Tout result = default;
                 if (BeforeFunc != null)
-                    await BeforeFunc(param);
-                result = await method(obj,param);
+                    await BeforeFunc(param, wapper);
+                result = await method(obj, param);
                 if (AfterFunc != null)
                     await AfterFunc(result);
                 return result;

@@ -22,7 +22,7 @@ namespace Oxygen.Client.ServerProxyFactory.Implements
         {
             return await messageSender.SendMessage<DefaultResponse>(DaprConfig.GetCurrent().StateStoreCompentName, $"/{input.Key}", null, SendType.delState);
         }
-        public async Task<T> GetState<T>(StateStore input) where T : class, new()
+        public async Task<T> GetState<T>(StateStore input) where T : new()
         {
             return await messageSender.SendMessage<T>(DaprConfig.GetCurrent().StateStoreCompentName, $"/{input.Key}", null, SendType.getState);
         }
