@@ -1,6 +1,7 @@
 ﻿using Oxygen.Client.ServerSymbol;
 using Oxygen.Client.ServerSymbol.Actors;
 using Oxygen.Client.ServerSymbol.Events;
+using Oxygen.Common;
 using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
 using Oxygen.ProxyGenerator.Interface;
@@ -61,9 +62,18 @@ namespace Oxygen.ProxyGenerator.Implements
                 case SendType.invoke:
                     url = $"{basepath}v1.0/invoke/{host}/method{url}";
                     request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
-                    var bytedata = serialize.Serializes(data);
-                    request.Content = new ByteArrayContent(bytedata);
-                    request.Content.Headers.ContentType = new MediaTypeHeaderValue($"application/x-msgpack");
+                    if (data != null)
+                    {
+                        var bytedata = serialize.Serializes(data);
+                        request.Content = new ByteArrayContent(bytedata);
+                        request.Content.Headers.ContentType = new MediaTypeHeaderValue($"application/x-msgpack");
+                    }
+                    else
+                    {
+                        request.Content = new ByteArrayContent(new byte[0]);
+                        request.Content.Headers.ContentType = new MediaTypeHeaderValue($"application/x-msgpack");
+                    }
+                    AddTraceHeader(request);
                     return request;
                 case SendType.publish:
                     url = $"{basepath}v1.0/publish/{host}{url}";
@@ -76,6 +86,7 @@ namespace Oxygen.ProxyGenerator.Implements
                     request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
                     stringjson = serialize.SerializesJson(data);
                     request.Content = new StringContent(stringjson);
+                    AddTraceHeader(request);
                     return request;
                 case SendType.setState:
                     url = $"{basepath}v1.0/state/{host}";
@@ -101,6 +112,20 @@ namespace Oxygen.ProxyGenerator.Implements
                 return serialize.Deserializes<T>(data) ?? new T();
             else
                 return serialize.DeserializesJson<T>(Encoding.UTF8.GetString(data));
+        }
+        internal void AddTraceHeader(HttpRequestMessage httpRequest)
+        {
+            if (!string.IsNullOrEmpty(DaprConfig.GetCurrent().TracingHeaders))
+            {
+                foreach(var headername in DaprConfig.GetCurrent().TracingHeaders.Split(","))
+                {
+                    foreach(var currentHeader in HttpContextExtension.ContextWapper.Value.Headers)
+                    {
+                        if (currentHeader.Key == headername)
+                            httpRequest.Headers.Add(headername, currentHeader.Value);
+                    }
+                }
+            }
         }
     }
 }

@@ -17,6 +17,8 @@ namespace RemoteInterface
         Task<OutDto> GetUserInfo(InputDto input);
         [RemoteFunc(FuncType.Actor)]
         Task<OutDto> GetUserInfoByActor(ActorInputDto input);
+        [RemoteFunc(FuncType.Normal)]
+        Task<OutDto> Test();
     }
     public class ActorInputDto : ActorSendDto
     {

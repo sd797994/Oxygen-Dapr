@@ -38,6 +38,11 @@ namespace Server
                 await scope.Resolve<IHelloRepository>().SaveData(data);
             await Task.CompletedTask;
         }
+
+        public async Task<OutDto> Test()
+        {
+            return await Task.FromResult(new OutDto() { word = "noinput" });
+        }
     }
     public class MyActor : ActorStateModel
     {

@@ -34,11 +34,17 @@ namespace Server
             .ConfigureServices((context, services) =>
             {
                 //注册成为oxygen服务节点
-                services.StartOxygenServer((config) => { config.Port = 80; config.PubSubCompentName = "pubsub"; config.StateStoreCompentName = "statestore"; });
+                services.StartOxygenServer((config) => { 
+                    config.Port = 80; 
+                    config.PubSubCompentName = "pubsub";
+                    config.StateStoreCompentName = "statestore";
+                    config.TracingHeaders = "Authentication";
+                });
                 //注册全局拦截器
                 LocalMethodAopProvider.RegisterPipelineHandler(async (obj, methodctx) =>
                 {
-                    Console.WriteLine($"这里是方法前拦截器，拦截到参数：{JsonSerializer.Serialize(obj)}");
+                    if (obj != null)
+                        Console.WriteLine($"这里是方法前拦截器，拦截到参数：{JsonSerializer.Serialize(obj)}");
                 }, async (result) =>
                 {
                     Console.WriteLine($"这里是方法后拦截器，拦截到方法结果：{JsonSerializer.Serialize(result)}");

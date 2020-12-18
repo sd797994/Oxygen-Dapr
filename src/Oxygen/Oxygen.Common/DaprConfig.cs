@@ -13,6 +13,7 @@ namespace Oxygen.Common
         public int Port { get; set; }
         public string PubSubCompentName { get; set; }
         public string StateStoreCompentName { get; set; }
+        public string TracingHeaders { get; set; }
         public static DaprConfig GetCurrent()
         {
             if (Currnet == null)

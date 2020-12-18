@@ -29,7 +29,12 @@ namespace Client
             .ConfigureServices((context, services) =>
             {
                 //注册成为oxygen服务节点
-                services.StartOxygenServer((config) => { config.Port = 80; config.PubSubCompentName = "pubsub"; config.StateStoreCompentName = "statestore"; });
+                services.StartOxygenServer((config) => {
+                    config.Port = 80;
+                    config.PubSubCompentName = "pubsub";
+                    config.StateStoreCompentName = "statestore";
+                    config.TracingHeaders = "Authentication";
+                });
                 services.AddAutofac();
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory());

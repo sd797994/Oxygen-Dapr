@@ -68,7 +68,7 @@ namespace Oxygen.Server.Kestrel.Implements
         static BaseRequestDelegate CreateRequestDelegate(Type t, string serverName, MethodInfo m, ILogger logger, IMessageHandler messageHandler)
         {
             //所有rpc默认只能处理一个入参
-            var inputType = m.GetParameters().FirstOrDefault().ParameterType;
+            var inputType = m.GetParameters().FirstOrDefault()?.ParameterType ?? typeof(object);
             //ReturnType必须是一个task<T>
             var outputType = m.ReturnType.GetGenericArguments().FirstOrDefault();
             var genericdelegateType = DelegateType.MakeGenericType(t, inputType, outputType);
@@ -84,6 +84,13 @@ namespace Oxygen.Server.Kestrel.Implements
             var mcExpression = Expression.Call(mParameter, method, Expression.Convert(pParameter, typeof(Tin)));
             var reExpression = Expression.Convert(mcExpression, typeof(Tout));
             return Expression.Lambda<Func<TObj, Tin, Tout>>(reExpression, mParameter, pParameter).Compile();
+        }
+        public static Func<TObj, Tout> CreateMethodDelegate<TObj, Tout>(MethodInfo method)
+        {
+            var mParameter = Expression.Parameter(typeof(TObj), "m");
+            var mcExpression = Expression.Call(mParameter, method);
+            var reExpression = Expression.Convert(mcExpression, typeof(Tout));
+            return Expression.Lambda<Func<TObj, Tout>>(reExpression, mParameter).Compile();
         }
     }
 }

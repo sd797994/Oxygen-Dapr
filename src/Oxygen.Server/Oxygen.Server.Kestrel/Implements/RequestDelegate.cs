@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Oxygen.Server.Kestrel.Implements
@@ -20,14 +21,25 @@ namespace Oxygen.Server.Kestrel.Implements
     {
         private readonly ILogger logger;
         private readonly IMessageHandler messageHandler;
+        private readonly bool noInput;
         public RequestDelegate(string serverName, MethodInfo method, ILogger logger, IMessageHandler messageHandler)
         {
             Path = new PathString($"/{serverName}/{method.Name}".ToLower());
-            MethodDelegate = RequestDelegateFactory.CreateMethodDelegate<Tobj, Tin, Task<Tout>>(method);
+            if (typeof(Tin) == typeof(object))
+            {
+                noInput = true;
+                NoInputMethodDelegate = RequestDelegateFactory.CreateMethodDelegate<Tobj, Task<Tout>>(method);
+            }
+            else
+            {
+                noInput = false;
+                MethodDelegate = RequestDelegateFactory.CreateMethodDelegate<Tobj, Tin, Task<Tout>>(method);
+            }
             this.logger = logger;
             this.messageHandler = messageHandler;
         }
         internal Func<Tobj, Tin, Task<Tout>> MethodDelegate { get; set; }
+        internal Func<Tobj, Task<Tout>> NoInputMethodDelegate { get; set; }
         internal override async Task Excute(HttpContext ctx, ILifetimeScope lifetimeScope)
         {
             using var scope = lifetimeScope.BeginLifetimeScope();
@@ -42,8 +54,17 @@ namespace Oxygen.Server.Kestrel.Implements
                     ctx.Response.ContentType = "application/x-msgpack";
                     messageType = MessageType.MessagePack;
                 }
-                var messageobj = await messageHandler.ParseMessage<Tin>(ctx, messageType);
-                var localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(scope.Resolve<Tobj>(), messageobj, new OxygenHttpContextWapper(Path, ctx.Request.Headers.GetHeaderDictionary(), ctx.Request.Cookies.GetCookieDictionary()), MethodDelegate);
+                HttpContextExtension.ContextWapper.Value = new OxygenHttpContextWapper(Path, scope, ctx.Request.Headers.GetHeaderDictionary(), ctx.Request.Cookies.GetCookieDictionary());
+                Tout localCallbackResult = null;
+                if (noInput)
+                {
+                    localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(scope.Resolve<Tobj>(), HttpContextExtension.ContextWapper.Value, NoInputMethodDelegate);
+                }
+                else
+                {
+                    var messageobj = await messageHandler.ParseMessage<Tin>(ctx, messageType);
+                    localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(scope.Resolve<Tobj>(), messageobj, HttpContextExtension.ContextWapper.Value, MethodDelegate);
+                }
                 if (localCallbackResult != null)
                 {
                     result = messageHandler.BuildMessage(localCallbackResult, messageType);

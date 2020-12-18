@@ -16,7 +16,10 @@ namespace Oxygen.ProxyGenerator.Implements
         }
         public object Excute(string hostName, string serviceName, object val, SendType sendType)
         {
-            return proxyfunc(hostName, serviceName, (Tin)val, sendType);
+            if (val != null)
+                return proxyfunc(hostName, serviceName, (Tin)val, sendType);
+            else
+                return proxyfunc(hostName, serviceName, default, sendType);
         }
     }
 }

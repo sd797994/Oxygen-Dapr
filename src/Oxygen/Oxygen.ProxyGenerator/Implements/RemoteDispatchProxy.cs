@@ -18,7 +18,10 @@ namespace Oxygen.ProxyGenerator.Implements
             var router = RemoteRouters.FirstOrDefault(x => x.Key.Equals(targetMethod.Name));
             if (router != null)
             {
-                return router.SenderDelegate.Excute(router.HostName, router.RouterName, args[0], router.SendType);
+                if (args.Any())
+                    return router.SenderDelegate.Excute(router.HostName, router.RouterName, args[0], router.SendType);
+                else
+                    return router.SenderDelegate.Excute(router.HostName, router.RouterName, null, router.SendType);
             }
             else
             {
@@ -42,7 +45,7 @@ namespace Oxygen.ProxyGenerator.Implements
                         Key = x.Name,
                         HostName = funcAttr.FuncType == FuncType.Actor ? $"/{interfaceType.Name}ActorImpl" : hostName,
                         RouterName = funcAttr.FuncType == FuncType.Actor ? $"/{x.Name}" : $"/{routerName}/{x.Name}".ToLower(),
-                        InputType = x.GetParameters()[0].ParameterType,
+                        InputType = x.GetParameters().FirstOrDefault()?.ParameterType,
                         SendType = funcAttr.FuncType == FuncType.Normal ? SendType.invoke : funcAttr.FuncType == FuncType.Actor ? SendType.actors : SendType.invoke,
                         MethodInfo = typeof(IRemoteMessageSender).GetMethod("SendMessage").MakeGenericMethod(x.ReturnParameter.ParameterType.GenericTypeArguments[0]),
                     });
@@ -58,7 +61,7 @@ namespace Oxygen.ProxyGenerator.Implements
             internal string Key { get; set; }
             internal string HostName { get; set; }
             internal string RouterName { get; set; }
-            internal Type InputType { get; set; }
+            internal Type? InputType { get; set; }
             internal MethodInfo MethodInfo { get; set; }
             internal SendType SendType { get; set; }
             internal IRemoteMessageSenderDelegate SenderDelegate { get; set; }
@@ -67,7 +70,7 @@ namespace Oxygen.ProxyGenerator.Implements
 
         IRemoteMessageSenderDelegate BuildSenderDelegate(MethodInfo methodInfo, Type inputType)
         {
-            return (IRemoteMessageSenderDelegate)Activator.CreateInstance(typeof(RemoteMessageSenderDelegate<,>).MakeGenericType(inputType, methodInfo.ReturnType), methodInfo, OxygenIocContainer.Resolve<IRemoteMessageSender>());
+            return (IRemoteMessageSenderDelegate)Activator.CreateInstance(typeof(RemoteMessageSenderDelegate<,>).MakeGenericType(inputType ?? typeof(object), methodInfo.ReturnType), methodInfo, OxygenIocContainer.Resolve<IRemoteMessageSender>());
         }
     }
 }
