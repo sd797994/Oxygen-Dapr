@@ -10,7 +10,7 @@ namespace Oxygen.Common.Implements
 {
     public static class ReflectionHelper
     {
-        static Lazy<IEnumerable<Assembly>> Assemblies = new Lazy<IEnumerable<Assembly>>(() => DependencyContext.Default.CompileLibraries.Where(lib => !lib.Serviceable && lib.Type != "package").Select(lib => AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(lib.Name))));
+        static Lazy<IEnumerable<Assembly>> Assemblies = new Lazy<IEnumerable<Assembly>>(() => DependencyContext.Default.CompileLibraries.Where(lib => !lib.Serviceable && lib.Type != "package" && lib.Type != "referenceassembly").Select(lib => AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(lib.Name))));
         public static IEnumerable<Type> GetTypesByAttributes(bool isInterface, params Type[] attributes)
         {
             return Assemblies.Value.SelectMany(a => a.GetTypes().Where(t => (isInterface ? t.IsInterface : !t.IsInterface) && t.GetCustomAttributes().Select(x => x.GetType()).Intersect(attributes).Count() == attributes.Count())).ToArray();
@@ -27,15 +27,15 @@ namespace Oxygen.Common.Implements
         {
             return Assemblies.Value.SelectMany(a => a.GetTypes().Where(t => t.GetInterfaces().Any() && t.GetInterfaces().Contains(interfaceType))).FirstOrDefault();
         }
-        public static IEnumerable<Type> GetTypeByInterfaces<T>() where T : class
+        public static IEnumerable<Type> GetImplTypeByInterface<T>() where T : class
         {
-            var basicInterfaces = GetTypesByAttributes(true);
-            if (basicInterfaces.Any())
+            var impls = GetTypesByAttributes(false);
+            if (impls.Any())
             {
-                foreach(var basicInterface in basicInterfaces)
+                foreach(var impl in impls)
                 {
-                    if (basicInterface.GetInterfaces().Any(x => x == typeof(T)))
-                        yield return basicInterface;
+                    if (impl.GetInterfaces().Any(x => x == typeof(T)))
+                        yield return impl;
                 }
             }
         }

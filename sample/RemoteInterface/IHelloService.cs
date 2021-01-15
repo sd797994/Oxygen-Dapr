@@ -31,11 +31,10 @@ namespace RemoteInterface
     }
     public class OutDto
     {
-        public string word { get; set; }
+        public string Word { get; set; }
     }
-    public class TestEventDto : IEvent
+    public class TestEventDto
     {
-        public override string Topic { get => "test"; }
         public string myword { get; set; }
     }
     public class TestStateDto : StateStore
@@ -54,6 +53,7 @@ namespace RemoteInterface
     }
     public class MyTestStateContent
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
     }
 }

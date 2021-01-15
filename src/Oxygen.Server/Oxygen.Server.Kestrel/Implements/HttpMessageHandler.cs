@@ -35,9 +35,9 @@ namespace Oxygen.Server.Kestrel.Implements
                 await message.Request.Body.CopyToAsync(buffer);
                 byte[] bytes = buffer.ToArray();
                 if (messageType == MessageType.Json)
-                    return serialize.DeserializesJson<T>(Encoding.UTF8.GetString(bytes)) ?? new T();
+                    return serialize.DeserializesJson<T>(Encoding.UTF8.GetString(bytes));
                 else if (messageType == MessageType.MessagePack)
-                    return serialize.Deserializes<T>(bytes) ?? new T();
+                    return serialize.Deserializes<T>(bytes);
                 else
                     return new T();
             }

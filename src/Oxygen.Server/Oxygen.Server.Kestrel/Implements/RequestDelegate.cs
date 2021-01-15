@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.Unicode;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -63,6 +64,8 @@ namespace Oxygen.Server.Kestrel.Implements
                 else
                 {
                     var messageobj = await messageHandler.ParseMessage<Tin>(ctx, messageType);
+                    if (messageobj == default(Tin))
+                        throw new FormatException("参数校验失败");
                     localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(scope.Resolve<Tobj>(), messageobj, HttpContextExtension.ContextWapper.Value, MethodDelegate);
                 }
                 if (localCallbackResult != null)
@@ -76,8 +79,10 @@ namespace Oxygen.Server.Kestrel.Implements
             }
             catch (Exception e)
             {
-                logger.LogError("服务端消息处理异常: " + e.Message);
+                logger.LogError($"服务端消息处理异常: {e.GetBaseException()?.Message ?? e.Message}");
                 ctx.Response.StatusCode = 502;
+                if (e is FormatException)
+                    await ctx.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(e.Message));
             }
             finally
             {

@@ -42,7 +42,7 @@ namespace Oxygen.Server.Kestrel.Implements
                 });
             });
             //为所有事件处理器生成代理并注册到dapr
-            var eventhandlers = ReflectionHelper.GetTypeByInterfaces<IEventHandler>();
+            var eventhandlers = ReflectionHelper.GetImplTypeByInterface<IEventHandler>();
             eventhandlers.ToList().ForEach(x =>
             {
                 x.GetMethods().ToList().ForEach(y =>
@@ -51,12 +51,12 @@ namespace Oxygen.Server.Kestrel.Implements
                            && y.GetParameters().FirstOrDefault().ParameterType.IsGenericType
                             && y.GetParameters().FirstOrDefault().ParameterType.GetGenericTypeDefinition() == typeof(EventHandleRequest<>))
                     {
+                        var handlerAttr = ReflectionHelper.GetAttributeProperyiesByMethodInfo<EventHandlerFuncAttribute>(y);
                         var requestDelegate = CreateRequestDelegate(x, x.Name, y, logger, messageHandler);
                         if (requestDelegate != null)
                         {
                             result.Add(requestDelegate);
-                            var param = Activator.CreateInstance(y.GetParameters().FirstOrDefault().ParameterType.GetGenericArguments()[0]) as IEvent;
-                            _subDelegate.Add(new SubscribeModel(DaprConfig.GetCurrent().PubSubCompentName, param.Topic, requestDelegate.Path));
+                            _subDelegate.Add(new SubscribeModel(DaprConfig.GetCurrent().PubSubCompentName, handlerAttr.Topic, requestDelegate.Path));
                         }
                     }
                 });
@@ -72,10 +72,10 @@ namespace Oxygen.Server.Kestrel.Implements
             //ReturnType必须是一个task<T>
             var outputType = m.ReturnType.GetGenericArguments().FirstOrDefault();
             var genericdelegateType = DelegateType.MakeGenericType(t, inputType, outputType);
-            if (ReflectionHelper.GetTypeByInterface(t) == null)
-                return null;
-            else
-                return Activator.CreateInstance(genericdelegateType, new object[] { serverName, m, logger, messageHandler }) as BaseRequestDelegate;
+            //if (ReflectionHelper.GetTypeByInterface(t) == null)
+            //    return null;
+            //else
+            return Activator.CreateInstance(genericdelegateType, new object[] { serverName, m, logger, messageHandler }) as BaseRequestDelegate;
         }
         public static Func<TObj, Tin, Tout> CreateMethodDelegate<TObj, Tin, Tout>(MethodInfo method)
         {

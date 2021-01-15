@@ -17,9 +17,9 @@ namespace Oxygen.Client.ServerProxyFactory.Implements
         {
             this.messageSender = messageSender;
         }
-        public async Task<DefaultResponse> SendEvent<T>(T input) where T : IEvent
+        public async Task<DefaultResponse> SendEvent<T>(string topic, T input)
         {
-            return await messageSender.SendMessage<DefaultResponse>(DaprConfig.GetCurrent().PubSubCompentName, $"/{input.Topic}", input, SendType.publish);
+            return await messageSender.SendMessage<DefaultResponse>(DaprConfig.GetCurrent().PubSubCompentName, $"/{topic}", input, SendType.publish);
         }
     }
 }

@@ -9,6 +9,6 @@ namespace Oxygen.Client.ServerProxyFactory.Interface
 {
     public interface IEventBus
     {
-        Task<DefaultResponse> SendEvent<T>(T input) where T : IEvent;
+        Task<DefaultResponse> SendEvent<T>(string topic, T input);
     }
 }

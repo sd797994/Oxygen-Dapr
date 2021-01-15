@@ -20,7 +20,7 @@ namespace Server
         }
         public async Task<OutDto> GetUserInfo(InputDto input)
         {
-            return await Task.FromResult(new OutDto() { word = $"hello {input?.name}" });
+            return await Task.FromResult(new OutDto() { Word = $"hello {input?.name}" });
         }
         public async Task<OutDto> GetUserInfoByActor(ActorInputDto input)
         {
@@ -29,7 +29,7 @@ namespace Server
             ActorData.Index++;
             if (ActorData.Index == 10)
                 ActorData.DeleteModel();
-            return await Task.FromResult(new OutDto() { word = $"hello {ActorData.Index}" });
+            return await Task.FromResult(new OutDto() { Word = $"hello {ActorData.Index}" });
         }
 
         public override async Task SaveData(MyActor data, ILifetimeScope scope)
@@ -41,7 +41,7 @@ namespace Server
 
         public async Task<OutDto> Test()
         {
-            return await Task.FromResult(new OutDto() { word = "noinput" });
+            return await Task.FromResult(new OutDto() { Word = "noinput" });
         }
     }
     public class MyActor : ActorStateModel

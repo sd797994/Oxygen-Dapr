@@ -2,7 +2,6 @@
 using Oxygen.Client.ServerSymbol;
 using Oxygen.Client.ServerSymbol.Events;
 using RemoteInterface;
-using Server.interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,17 +12,18 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    public class HelloEventHandler : IHelloEventHandler
+    public class HelloEventHandler : IEventHandler
     {
         private readonly ILogger<HelloEventHandler> logger;
         public HelloEventHandler(ILogger<HelloEventHandler> logger)
         {
             this.logger = logger;
         }
+        [EventHandlerFunc("test")]
         public async Task<DefaultEventHandlerResponse> SubscribeByUserInfoEvent(EventHandleRequest<TestEventDto> input)
         {
             logger.LogInformation($"订阅器收到消息：{JsonSerializer.Serialize(input.data, new JsonSerializerOptions() { Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) })}");
-            return DefaultEventHandlerResponse.Default();
+            return await Task.FromResult(DefaultEventHandlerResponse.Default());
         }
     }
 }

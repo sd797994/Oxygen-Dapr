@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Oxygen.Common.Implements
 {
@@ -18,6 +19,15 @@ namespace Oxygen.Common.Implements
             options.WithCompression(MessagePackCompression.Lz4BlockArray);
             MessagePackSerializer.DefaultOptions = options;
             return true;
+        });
+        public static Lazy<JsonSerializerOptions> JsonSerializerOptions = new Lazy<JsonSerializerOptions>(() =>
+        {
+            var options = new JsonSerializerOptions();
+            options.PropertyNameCaseInsensitive = true;
+            options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; //响应驼峰命名
+            options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;//中文乱码
+            return options;
         });
         public MessagePackSerialize(ILogger logger)
         {
@@ -56,7 +66,7 @@ namespace Oxygen.Common.Implements
                 return default(string);
             try
             {
-                return JsonSerializer.Serialize(input);
+                return JsonSerializer.Serialize(input, JsonSerializerOptions.Value);
             }
             catch (Exception e)
             {
@@ -117,7 +127,7 @@ namespace Oxygen.Common.Implements
                 return default(T);
             try
             {
-                return JsonSerializer.Deserialize<T>(input);
+                return JsonSerializer.Deserialize<T>(input, JsonSerializerOptions.Value);
             }
             catch (Exception e)
             {
@@ -137,7 +147,7 @@ namespace Oxygen.Common.Implements
                 return default;
             try
             {
-                return JsonSerializer.Deserialize(input, type);
+                return JsonSerializer.Deserialize(input, type, JsonSerializerOptions.Value);
             }
             catch (Exception e)
             {
@@ -179,6 +189,17 @@ namespace Oxygen.Common.Implements
                 _logger.LogError($"反序化对象失败：{e.Message}");
             }
             return null;
+        }
+    }
+    public class DateTimeConverterUsingDateTimeParse : JsonConverter<DateTime>
+    {
+        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return DateTime.Parse(reader.GetString());
+        }
+        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value.ToString("yyyy-MM-dd HH:mm:ss"));
         }
     }
 }

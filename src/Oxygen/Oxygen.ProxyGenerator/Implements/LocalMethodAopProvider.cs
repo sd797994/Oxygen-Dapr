@@ -14,14 +14,17 @@ namespace Oxygen.ProxyGenerator.Implements
         static Func<object, OxygenHttpContextWapper, Task> BeforeFunc;
         static Func<object, Task> AfterFunc;
         static Func<Exception, Task<dynamic>> ExceptionFunc;
+        static Action<OxygenHttpContextWapper> ContextRegister;
         /// <summary>
         /// 为管道注册匿名委托
         /// </summary>
         /// <param name="beforeFunc"></param>
         /// <param name="afterFunc"></param>
         /// <param name="exceptionFunc"></param>
-        public static void RegisterPipelineHandler(Func<object, OxygenHttpContextWapper, Task> beforeFunc = null, Func<object, Task> afterFunc = null, Func<Exception, Task<object>> exceptionFunc = null)
+        public static void RegisterPipelineHandler(Action<OxygenHttpContextWapper> contextRegister, Func<object, OxygenHttpContextWapper, Task> beforeFunc = null, Func<object, Task> afterFunc = null, Func<Exception, Task<object>> exceptionFunc = null)
         {
+            if (contextRegister != null)
+                ContextRegister = contextRegister;
             if (beforeFunc != null)
                 BeforeFunc = beforeFunc;
             if (afterFunc != null)
@@ -42,6 +45,8 @@ namespace Oxygen.ProxyGenerator.Implements
             try
             {
                 Tout result = default;
+                if (ContextRegister != null)
+                    ContextRegister(wapper);
                 if (BeforeFunc != null)
                     await BeforeFunc(param, wapper);
                 result = await method(obj, param);
@@ -61,6 +66,8 @@ namespace Oxygen.ProxyGenerator.Implements
             try
             {
                 Tout result = default;
+                if (ContextRegister != null)
+                    ContextRegister(wapper);
                 if (BeforeFunc != null)
                     await BeforeFunc(null, wapper);
                 result = await method(obj);
