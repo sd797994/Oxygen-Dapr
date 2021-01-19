@@ -1,5 +1,6 @@
 ﻿using MessagePack;
 using MessagePack.Resolvers;
+using Oxygen.Common.Implements.JsonConverters;
 using Oxygen.Common.Interface;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,11 @@ using System.Text.Json.Serialization;
 
 namespace Oxygen.Common.Implements
 {
-    internal class MessagePackSerialize : ISerialize
+    internal class SerializeImpl : ISerialize
     {
         private readonly ILogger _logger;
-        public static Lazy<bool> loadConfig = new Lazy<bool>(() => {
+        public static Lazy<bool> LoadMessagePackDefaultOptions = new Lazy<bool>(() =>
+        {
             StaticCompositeResolver.Instance.Register(NativeDateTimeResolver.Instance, ContractlessStandardResolverAllowPrivate.Instance);
             var options = MessagePackSerializerOptions.Standard.WithResolver(StaticCompositeResolver.Instance);
             options.WithCompression(MessagePackCompression.Lz4BlockArray);
@@ -23,15 +25,22 @@ namespace Oxygen.Common.Implements
         public static Lazy<JsonSerializerOptions> JsonSerializerOptions = new Lazy<JsonSerializerOptions>(() =>
         {
             var options = new JsonSerializerOptions();
-            options.PropertyNameCaseInsensitive = true;
-            options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+            options.PropertyNameCaseInsensitive = true;//忽略大小写
+            //基础类型处理通过客户端自定义重载
+            options.Converters.Add(new TextJsonConverter.DateTimeParse());
+            options.Converters.Add(new TextJsonConverter.IntParse());
+            options.Converters.Add(new TextJsonConverter.DoubleParse());
+            options.Converters.Add(new TextJsonConverter.FloatParse());
+            options.Converters.Add(new TextJsonConverter.GuidParse());
             options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; //响应驼峰命名
             options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;//中文乱码
+            options.AllowTrailingCommas = true;//允许数组末尾多余的逗号
+            options.IgnoreNullValues = true;
             return options;
         });
-        public MessagePackSerialize(ILogger logger)
+        public SerializeImpl(ILogger logger)
         {
-            _ = loadConfig.Value;
+            _ = LoadMessagePackDefaultOptions.Value;//加载MessagePack序列化器全局配置
             _logger = logger;
         }
         /// <summary>
@@ -189,17 +198,6 @@ namespace Oxygen.Common.Implements
                 _logger.LogError($"反序化对象失败：{e.Message}");
             }
             return null;
-        }
-    }
-    public class DateTimeConverterUsingDateTimeParse : JsonConverter<DateTime>
-    {
-        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return DateTime.Parse(reader.GetString());
-        }
-        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value.ToString("yyyy-MM-dd HH:mm:ss"));
         }
     }
 }
