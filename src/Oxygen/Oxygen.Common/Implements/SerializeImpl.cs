@@ -32,10 +32,10 @@ namespace Oxygen.Common.Implements
             options.Converters.Add(new TextJsonConverter.DoubleParse());
             options.Converters.Add(new TextJsonConverter.FloatParse());
             options.Converters.Add(new TextJsonConverter.GuidParse());
+            options.Converters.Add(new TextJsonConverter.BoolParse());
             options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; //响应驼峰命名
             options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;//中文乱码
             options.AllowTrailingCommas = true;//允许数组末尾多余的逗号
-            options.IgnoreNullValues = true;
             return options;
         });
         public SerializeImpl(ILogger logger)

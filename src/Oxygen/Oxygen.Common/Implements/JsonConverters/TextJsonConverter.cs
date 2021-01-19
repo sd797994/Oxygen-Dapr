@@ -10,52 +10,114 @@ namespace Oxygen.Common.Implements.JsonConverters
 {
     public class TextJsonConverter
     {
-        public abstract class DefParse<T> : JsonConverter<T>
+        public class DateTimeParse : JsonConverter<DateTime>
         {
-            Func<string, T> ParseFunc;
-            public DefParse(Func<string, T> parseFunc)
+            public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                ParseFunc = parseFunc;
+                if (DateTime.TryParse(reader.GetString(), out DateTime result))
+                    return result;
+                else
+                    return default(DateTime);
             }
-            public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-                try
-                {
-                    return ParseFunc(reader.GetString());
-                }
-                catch (Exception)
-                {
-                    return default(T);
-                }
-            }
-            public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-            {
-                writer.WriteStringValue(value.ToString());
-            }
-        }
-        public class DateTimeParse : DefParse<DateTime>
-        {
-            public DateTimeParse() : base(DateTime.Parse) { }
+
             public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
             {
                 writer.WriteStringValue(value.ToString("yyyy-MM-dd HH:mm:ss"));
             }
         }
-        public class IntParse : DefParse<int>
+        public class IntParse : JsonConverter<int>
         {
-            public IntParse() : base(int.Parse) { }
+            public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TryGetInt32(out int result))
+                    return result;
+                else
+                    return default(int);
+            }
+
+            public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options)
+            {
+                writer.WriteNumberValue(value);
+            }
         }
-        public class DoubleParse : DefParse<double>
+        public class DecimalParse : JsonConverter<decimal>
         {
-            public DoubleParse() : base(double.Parse) { }
+            public override decimal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TryGetDecimal(out decimal value))
+                    return value;
+                else
+                    return default(decimal);
+            }
+
+            public override void Write(Utf8JsonWriter writer, decimal value, JsonSerializerOptions options)
+            {
+                writer.WriteNumberValue(value);
+            }
         }
-        public class FloatParse : DefParse<float>
+        public class DoubleParse : JsonConverter<double>
         {
-            public FloatParse() : base(float.Parse) { }
+            public override double Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TryGetDouble(out double value))
+                    return value;
+                else
+                    return default(double);
+            }
+
+            public override void Write(Utf8JsonWriter writer, double value, JsonSerializerOptions options)
+            {
+                writer.WriteNumberValue(value);
+            }
         }
-        public class GuidParse : DefParse<Guid>
+        public class FloatParse : JsonConverter<float>
         {
-            public GuidParse() : base(Guid.Parse) { }
+            public override float Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TryGetDouble(out double value))
+                    return (float)value;
+                else
+                    return default(float);
+            }
+
+            public override void Write(Utf8JsonWriter writer, float value, JsonSerializerOptions options)
+            {
+                writer.WriteNumberValue(value);
+            }
+        }
+        public class GuidParse : JsonConverter<Guid>
+        {
+            public override Guid Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TryGetGuid(out Guid value))
+                    return value;
+                else
+                    return Guid.Empty;
+            }
+
+            public override void Write(Utf8JsonWriter writer, Guid value, JsonSerializerOptions options)
+            {
+                writer.WriteStringValue(value);
+            }
+        }
+        public class BoolParse : JsonConverter<bool>
+        {
+            public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                try
+                {
+                    return reader.GetBoolean();
+                }
+                catch (Exception)
+                {
+                    return default(bool);
+                }
+            }
+
+            public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)
+            {
+                writer.WriteBooleanValue(value);
+            }
         }
     }
 

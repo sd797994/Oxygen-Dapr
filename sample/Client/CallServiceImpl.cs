@@ -31,14 +31,14 @@ namespace Client
         public async Task<InputDto> RemoteCallTest(InputDto input)
         {
             var helloService = serviceProxyFactory.CreateProxy<IHelloService>();
-            await stateManager.SetState(new TestStateDto("mykey", new MyTestStateContent() { Name = "mystate", Id = Guid.NewGuid() }));
-            var getState = await stateManager.GetState<MyTestStateContent>(new TestStateDto("mykey"));
+            await stateManager.SetState(new TestStateDto("mykey", true));
+            var getState = await stateManager.GetState<bool>(new TestStateDto("mykey"));
             var delState = await stateManager.DelState(new TestStateDto("mykey"));
             var invokeresult = await helloService.GetUserInfo(new InputDto() { name = "xiaoming" });
             var invokenoinputresult = await helloService.Test();
             var eventresult = await eventBus.SendEvent("test", new TestEventDto() { myword = "abc" });
             var actorresult = await helloService.GetUserInfoByActor(new ActorInputDto() { name = "xiaoming", ActorId = "1" });
-            return new InputDto() { name = $"RPC无参调用成功，回调：{JsonSerializer.Serialize(invokenoinputresult)},RPC有参调用成功，回调：{JsonSerializer.Serialize(invokeresult)},事件发送{(eventresult != null ? "成功" : "失败")},状态写入成功，值：{getState.Name},actor调用成功，回调：{JsonSerializer.Serialize(actorresult)}" };
+            return new InputDto() { name = $"RPC无参调用成功，回调：{JsonSerializer.Serialize(invokenoinputresult)},RPC有参调用成功，回调：{JsonSerializer.Serialize(invokeresult)},事件发送{(eventresult != null ? "成功" : "失败")},状态写入成功，值：{getState},actor调用成功，回调：{JsonSerializer.Serialize(actorresult)}" };
         }
         public async Task<MultipleTestOutput> MultipleTest(MultipleTestInput input)
         {
