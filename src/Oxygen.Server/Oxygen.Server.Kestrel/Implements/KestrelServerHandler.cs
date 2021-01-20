@@ -28,15 +28,15 @@ namespace Oxygen.Server.Kestrel.Implements
         public void BuildHandler(IApplicationBuilder app, ISerialize serialize)
         {
             RequestDelegateFactory.CreateDelegate(logger, messageHandler, out List<SubscribeModel> subDelegate).ForEach(x =>
-             {
-                 app.Map(x.Path, handle =>
-                 {
-                     handle.MapWhen(p => p.Request.Method.Equals("POST"), builder =>
-                     {
-                         builder.Run(ctx => x.Excute(ctx, container));
-                     });
-                 });
-             });
+            {
+                app.Map(x.Path, handle =>
+                {
+                    handle.MapWhen(p => p.Request.Method.Equals("POST"), builder =>
+                    {
+                        builder.Run(ctx => x.Excute(ctx, container));
+                    });
+                });
+            });
             if (subDelegate.Any())
             {
                 app.Map("/dapr/subscribe", handle => handle.Run(async ctx =>

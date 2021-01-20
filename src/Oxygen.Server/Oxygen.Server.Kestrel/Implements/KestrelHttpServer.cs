@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Oxygen.Common;
 using Oxygen.Common.Interface;
 using Oxygen.Server.Kestrel.Interface;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,8 +37,13 @@ namespace Oxygen.Server.Kestrel.Implements
                           });
                       })
                       .Configure(app =>
-                      serverHandler.BuildHandler(app, serialize)
-                      );
+                      {
+                          if (DaprConfig.GetCurrent().UseStaticFiles)
+                              app.UseStaticFiles();
+                          serverHandler.BuildHandler(app, serialize);
+                      });
+            if (DaprConfig.GetCurrent().UseStaticFiles)
+                builder.UseContentRoot(Directory.GetCurrentDirectory());
             middlewarebuilder?.Invoke(builder);
             Host = builder.Build();
             await Host.StartAsync();

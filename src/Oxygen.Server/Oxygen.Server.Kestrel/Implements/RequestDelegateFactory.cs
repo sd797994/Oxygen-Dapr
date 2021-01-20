@@ -27,19 +27,22 @@ namespace Oxygen.Server.Kestrel.Implements
             remoteservice.ToList().ForEach(x =>
             {
                 var srvAttr = ReflectionHelper.GetAttributeProperyiesByType<RemoteServiceAttribute>(x);
-                ReflectionHelper.GetMethodByFilter(x, typeof(RemoteFuncAttribute)).ToList().ForEach(y =>
+                if (ReflectionHelper.GetTypeByInterface(x) != null)
                 {
-                    var funcAttr = ReflectionHelper.GetAttributeProperyiesByMethodInfo<RemoteFuncAttribute>(y);
-                    //生成服务调用代理
-                    if (funcAttr.FuncType == FuncType.Normal)
+                    ReflectionHelper.GetMethodByFilter(x, typeof(RemoteFuncAttribute)).ToList().ForEach(y =>
                     {
-                        var requestDelegate = CreateRequestDelegate(x, srvAttr?.ServerName ?? x.Name, y, logger, messageHandler);
-                        if (requestDelegate != null)
+                        var funcAttr = ReflectionHelper.GetAttributeProperyiesByMethodInfo<RemoteFuncAttribute>(y);
+                        //生成服务调用代理
+                        if (funcAttr.FuncType == FuncType.Normal)
                         {
-                            result.Add(requestDelegate);
+                            var requestDelegate = CreateRequestDelegate(x, srvAttr?.ServerName ?? x.Name, y, logger, messageHandler);
+                            if (requestDelegate != null)
+                            {
+                                result.Add(requestDelegate);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             });
             //为所有事件处理器生成代理并注册到dapr
             var eventhandlers = ReflectionHelper.GetImplTypeByInterface<IEventHandler>();

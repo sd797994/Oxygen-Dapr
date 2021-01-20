@@ -14,6 +14,7 @@ namespace Oxygen.Common
         public string PubSubCompentName { get; set; }
         public string StateStoreCompentName { get; set; }
         public string TracingHeaders { get; set; }
+        public bool UseStaticFiles { get; set; }
         public static DaprConfig GetCurrent()
         {
             if (Currnet == null)
