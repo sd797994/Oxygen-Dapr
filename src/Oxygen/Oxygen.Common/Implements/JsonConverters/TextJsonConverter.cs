@@ -73,7 +73,7 @@ namespace Oxygen.Common.Implements.JsonConverters
             {
                 try
                 {
-                    if (reader.HasValueSequence && reader.TryGetDouble(out double value))
+                    if (reader.TryGetDouble(out double value))
                         return value;
                     else
                         return default(double);
@@ -95,7 +95,7 @@ namespace Oxygen.Common.Implements.JsonConverters
             {
                 try
                 {
-                    if (reader.HasValueSequence && reader.TryGetDouble(out double value))
+                    if (reader.TryGetDouble(out double value))
                     return (float)value;
                 else
                     return default(float);
@@ -117,7 +117,7 @@ namespace Oxygen.Common.Implements.JsonConverters
             {
                 try
                 {
-                    if (reader.HasValueSequence && reader.TryGetGuid(out Guid value))
+                    if (reader.TryGetGuid(out Guid value))
                         return value;
                     return Guid.Empty;
                 }
