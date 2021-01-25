@@ -19,13 +19,16 @@ namespace Oxygen.ProxyGenerator.Implements
     {
         private readonly ISerialize serialize;
         private readonly ILogger logger;
-        static HttpClient HttpClient;
-        public RemoteMessageSender(IHttpClientFactory httpClientFactory, ISerialize serialize, ILogger logger)
+        static Lazy<HttpClient> HttpClient = new Lazy<HttpClient>(() =>
+        {
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Connection.Add("keep-alive");
+            return client;
+        });
+        public RemoteMessageSender(ISerialize serialize, ILogger logger)
         {
             this.serialize = serialize;
             this.logger = logger;
-            HttpClient = HttpClient ?? httpClientFactory.CreateClient();
-            HttpClient.DefaultRequestHeaders.Connection.Add("keep-alive");
         }
         public async Task<T> SendMessage<T>(string hostName, string serverName, object input, SendType sendType) where T : new()
         {
@@ -33,7 +36,7 @@ namespace Oxygen.ProxyGenerator.Implements
             try
             {
                 var sendMessage = BuildMessage(hostName, serverName, input, sendType);
-                var responseMessage = await HttpClient.SendAsync(sendMessage);
+                var responseMessage = await HttpClient.Value.SendAsync(sendMessage);
                 if (responseMessage.IsSuccessStatusCode)
                 {
                     if (sendType == SendType.publish || sendType == SendType.setState || sendType == SendType.delState)
@@ -42,7 +45,7 @@ namespace Oxygen.ProxyGenerator.Implements
                 }
                 else
                 {
-                    logger.LogError($"客户端调用http请求异常,状态码：{responseMessage?.StatusCode},回调内容：{await responseMessage.Content.ReadAsStringAsync()}");
+                    logger.LogError($"客户端调用http请求异常,状态码：{responseMessage?.StatusCode},请求内容:{sendMessage}，回调内容:{await responseMessage.Content.ReadAsStringAsync()}");
                 }
             }
             catch (Exception e)
@@ -56,6 +59,7 @@ namespace Oxygen.ProxyGenerator.Implements
             //集群内地址：localhost:3500
             //todo: 由于event和actor会被dapr拦截使用Text.Json进行序列化封装，导致无法使用messagepack序列/反序列化,所以暂时只能采用json
             var basepath = $"http://localhost:3500/";
+            //basepath = "http://api.dapreshop.com:30882/";
             HttpRequestMessage request;
             switch (sendType)
             {

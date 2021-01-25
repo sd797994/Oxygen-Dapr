@@ -28,7 +28,8 @@ namespace RemoteInterface
     public class InputDto
     {
         public string name { get; set; }
-        public int? id { get; set; }
+        public int id { get; set; }
+        public bool getbool { get; set; }
     }
     public class OutDto
     {

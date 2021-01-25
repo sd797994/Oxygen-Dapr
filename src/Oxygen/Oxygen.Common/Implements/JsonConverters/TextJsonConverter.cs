@@ -29,10 +29,16 @@ namespace Oxygen.Common.Implements.JsonConverters
         {
             public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                if (reader.TryGetInt32(out int result))
-                    return result;
-                else
+                try
+                {
+                    if (int.TryParse(reader.GetString(), out int result))
+                        return result;
                     return default(int);
+                }
+                catch (Exception)
+                {
+                    return default(int);
+                }
             }
 
             public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options)
@@ -44,10 +50,16 @@ namespace Oxygen.Common.Implements.JsonConverters
         {
             public override decimal Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                if (reader.TryGetDecimal(out decimal value))
-                    return value;
-                else
+                try
+                {
+                    if (reader.TryGetDecimal(out decimal value))
+                        return value;
                     return default(decimal);
+                }
+                catch (Exception)
+                {
+                    return default(decimal);
+                }
             }
 
             public override void Write(Utf8JsonWriter writer, decimal value, JsonSerializerOptions options)
@@ -59,10 +71,17 @@ namespace Oxygen.Common.Implements.JsonConverters
         {
             public override double Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                if (reader.TryGetDouble(out double value))
-                    return value;
-                else
+                try
+                {
+                    if (reader.HasValueSequence && reader.TryGetDouble(out double value))
+                        return value;
+                    else
+                        return default(double);
+                }
+                catch (Exception)
+                {
                     return default(double);
+                }
             }
 
             public override void Write(Utf8JsonWriter writer, double value, JsonSerializerOptions options)
@@ -74,10 +93,17 @@ namespace Oxygen.Common.Implements.JsonConverters
         {
             public override float Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                if (reader.TryGetDouble(out double value))
+                try
+                {
+                    if (reader.HasValueSequence && reader.TryGetDouble(out double value))
                     return (float)value;
                 else
                     return default(float);
+                }
+                catch (Exception)
+                {
+                    return default(float);
+                }
             }
 
             public override void Write(Utf8JsonWriter writer, float value, JsonSerializerOptions options)
@@ -89,10 +115,16 @@ namespace Oxygen.Common.Implements.JsonConverters
         {
             public override Guid Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                if (reader.TryGetGuid(out Guid value))
-                    return value;
-                else
+                try
+                {
+                    if (reader.HasValueSequence && reader.TryGetGuid(out Guid value))
+                        return value;
                     return Guid.Empty;
+                }
+                catch (Exception)
+                {
+                    return Guid.Empty;
+                }
             }
 
             public override void Write(Utf8JsonWriter writer, Guid value, JsonSerializerOptions options)
