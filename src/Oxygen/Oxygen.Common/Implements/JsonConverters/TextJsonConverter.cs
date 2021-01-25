@@ -31,7 +31,7 @@ namespace Oxygen.Common.Implements.JsonConverters
             {
                 try
                 {
-                    if (int.TryParse(reader.GetString(), out int result))
+                    if (reader.TryGetInt32(out int result))
                         return result;
                     return default(int);
                 }
