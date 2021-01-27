@@ -42,7 +42,7 @@ namespace Oxygen.Mesh.Dapr
                         //激活actor之后立即发送一次持久化消息，避免上一个actor关闭时没有成功发送持久化消息
                         await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
                         //为actor注册定时器定时发送持久化消息
-                        if (ActorData.AutoSave == true && ActorData.ReminderSeconds >= 5)
+                        if (ActorData.AutoSave == true && ActorData.ReminderSeconds > 0)
                         {
                             registerTimerState = true;
                             await RegisterTimer(ActorData.ReminderSeconds);
@@ -86,10 +86,16 @@ namespace Oxygen.Mesh.Dapr
                 else
                 {
                     await StateManager.SetStateAsync("ActorData", ActorData);
-                    if (registerTimerState == false && ActorData.ReminderSeconds >= 5)
+                    if (registerTimerState == false && ActorData.ReminderSeconds > 0)
                     {
                         registerTimerState = true;
                         await RegisterTimer(ActorData.ReminderSeconds);
+                    }
+                    else if (ActorData.ReminderSeconds == 0)
+                    {
+                        //如果开启自动保存，但是没有设置定期更新时间，则立即触发一次保存
+                        actorStateMessage.ActorData = ActorData;
+                        await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
                     }
                 }
             }

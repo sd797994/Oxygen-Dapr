@@ -43,7 +43,7 @@ namespace Oxygen.ProxyGenerator.Implements
                     RemoteRouters.Add(new RemoteRouter()
                     {
                         Key = x.Name,
-                        HostName = funcAttr.FuncType == FuncType.Actor ? $"/{interfaceType.Name}ActorImpl" : hostName,
+                        HostName = funcAttr.FuncType == FuncType.Actor ? $"{interfaceType.Name}ActorImpl" : hostName,
                         RouterName = funcAttr.FuncType == FuncType.Actor ? $"/{x.Name}" : $"/{routerName}/{x.Name}".ToLower(),
                         InputType = x.GetParameters().FirstOrDefault()?.ParameterType,
                         SendType = funcAttr.FuncType == FuncType.Normal ? SendType.invoke : funcAttr.FuncType == FuncType.Actor ? SendType.actors : SendType.invoke,

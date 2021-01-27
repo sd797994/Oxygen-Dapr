@@ -59,7 +59,7 @@ namespace Oxygen.ProxyGenerator.Implements
             //集群内地址：localhost:3500
             //todo: 由于event和actor会被dapr拦截使用Text.Json进行序列化封装，导致无法使用messagepack序列/反序列化,所以暂时只能采用json
             var basepath = $"http://localhost:3500/";
-            //basepath = "http://api.dapreshop.com:30882/";
+            //basepath = "http://api.oxygen-dapr.com:30882/";
             HttpRequestMessage request;
             switch (sendType)
             {

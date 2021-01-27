@@ -1,4 +1,6 @@
-﻿using Oxygen.Mesh.Dapr.Model;
+﻿using Oxygen.Common.Implements;
+using Oxygen.Mesh.Dapr.Model;
+using Oxygen.ProxyGenerator.Implements;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -43,7 +45,7 @@ namespace Oxygen.Mesh.Dapr
                 else
                 {
                     service.ActorData = this.actor.ActorData;
-                    localAwaiter = func(input).GetAwaiter();
+                    localAwaiter = LocalMethodAopProvider.UsePipelineHandlerWithActor(input, HttpContextExtension.ContextWapper.Value, func).GetAwaiter();
                     if (!localAwaiter.IsCompleted)
                     {
                         num = state = 0;
