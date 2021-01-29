@@ -39,8 +39,6 @@ namespace Oxygen.Mesh.Dapr
                     if (ActorData != null)
                     {
                         actorStateMessage.ActorData = ActorData;
-                        //激活actor之后立即发送一次持久化消息，避免上一个actor关闭时没有成功发送持久化消息
-                        await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
                         //为actor注册定时器定时发送持久化消息
                         if (ActorData.AutoSave == true && ActorData.ReminderSeconds > 0)
                         {
@@ -62,8 +60,6 @@ namespace Oxygen.Mesh.Dapr
         }
         private async Task TimerCallBack(object data)
         {
-            actorStateMessage.ActorData = ActorData;
-            await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
             await Task.CompletedTask;
         }
         /// <summary>
@@ -73,29 +69,39 @@ namespace Oxygen.Mesh.Dapr
         /// <returns></returns>
         protected override async Task OnPostActorMethodAsync(ActorMethodContext actorMethodContext)
         {
-            if (ActorData != null && ActorData.AutoSave)
+            if (actorMethodContext.CallType == ActorCallType.ActorInterfaceMethod)
             {
-                if (ActorData.IsDelete)
+                ActorData.UpdateVersion();//方法调用后强制升级一次版本
+                if (ActorData != null && ActorData.AutoSave)
                 {
-                    if (await StateManager.TryRemoveStateAsync("ActorData"))
+                    if (ActorData.IsDelete)
                     {
-                        ActorData = null;
-                        await UnRegisterTimer();
+                        if (await StateManager.TryRemoveStateAsync("ActorData"))
+                        {
+                            ActorData = null;
+                            await UnRegisterTimer();
+                        }
+                    }
+                    else
+                    {
+                        await StateManager.SetStateAsync("ActorData", ActorData);
+                        if (ActorData.ReminderSeconds == 0)
+                        {
+                            //如果开启自动保存，但是没有设置定期更新时间，则立即触发一次保存
+                            actorStateMessage.ActorData = ActorData;
+                            _ = Task.Run(() => lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage));//无需等待回调
+                        }
                     }
                 }
-                else
+            }
+            else
+            {
+                if (ActorData != null && ActorData.AutoSave)
                 {
-                    await StateManager.SetStateAsync("ActorData", ActorData);
-                    if (registerTimerState == false && ActorData.ReminderSeconds > 0)
+                    if (ActorData.CheckVersionChange())
                     {
-                        registerTimerState = true;
-                        await RegisterTimer(ActorData.ReminderSeconds);
-                    }
-                    else if (ActorData.ReminderSeconds == 0)
-                    {
-                        //如果开启自动保存，但是没有设置定期更新时间，则立即触发一次保存
                         actorStateMessage.ActorData = ActorData;
-                        _ = Task.Run(() => lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage));//无需等待回调
+                        await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
                     }
                 }
             }

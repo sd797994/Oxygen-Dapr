@@ -113,7 +113,7 @@ namespace Client
     {
         public int Index { get; set; }
         public override bool AutoSave { get; set; }
-        public override int ReminderSeconds { get => 0; }
+        public override int ReminderSeconds { get => 1; }
     }
     public interface IHelloRepository
     {

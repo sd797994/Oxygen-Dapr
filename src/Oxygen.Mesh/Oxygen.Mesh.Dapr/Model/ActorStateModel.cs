@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace Oxygen.Mesh.Dapr.Model
 {
@@ -13,6 +14,22 @@ namespace Oxygen.Mesh.Dapr.Model
         {
             AutoSave = true;
             IsDelete = true;
+        }
+        private int oldVersion;
+        private int newVersion;
+        internal void UpdateVersion()
+        {
+            Interlocked.Increment(ref newVersion);
+        }
+        internal bool CheckVersionChange(bool updateversion = true)
+        {
+            if (oldVersion != newVersion)
+            {
+                if (updateversion)
+                    oldVersion = newVersion;
+                return true;
+            }
+            return false;
         }
     }
 }

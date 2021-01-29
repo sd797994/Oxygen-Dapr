@@ -9,6 +9,11 @@ using System.Threading.Tasks;
 
 namespace Client
 {
+    public class Test
+    {
+        public int id { get; set; }
+        public void changeid(int _id) { this.id = _id; }
+    }
     class Program
     {
         static async Task Main(string[] args)
