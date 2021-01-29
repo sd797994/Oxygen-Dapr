@@ -46,6 +46,33 @@ namespace Oxygen.Common.Implements
                 return null;
             }
         }
+        public static T ResolveNamed<T>(string name) where T : class
+        {
+            try
+            {
+                if (Current.Value == null)
+                {
+                    logger.LogError("IOC容器实例尚未初始化!");
+                    return default;
+                }
+                else
+                {
+                    var instance = Current.Value.ResolveNamed<T>(name);
+                    if (instance != null)
+                        return instance;
+                    else
+                    {
+                        logger.LogError($"IOC容器实例化失败，没有找到类型{typeof(T).Name}!");
+                        return null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return null;
+            }
+        }
         public static object Resolve(Type type)
         {
             try

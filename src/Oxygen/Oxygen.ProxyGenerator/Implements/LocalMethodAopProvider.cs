@@ -82,26 +82,5 @@ namespace Oxygen.ProxyGenerator.Implements
             }
             return default;
         }
-        public static async Task<Tout> UsePipelineHandlerWithActor<Tin, Tout>(Tin param, OxygenHttpContextWapper wapper, Func<Tin, Task<Tout>> method)
-        {
-            try
-            {
-                Tout result = default;
-                if (ContextRegister != null)
-                    ContextRegister(wapper);
-                if (BeforeFunc != null)
-                    await BeforeFunc(null, wapper);
-                result = await method(param);
-                if (AfterFunc != null)
-                    await AfterFunc(result);
-                return result;
-            }
-            catch (Exception e)
-            {
-                if (ExceptionFunc != null)
-                    return await ExceptionFunc(e);
-            }
-            return default;
-        }
     }
 }

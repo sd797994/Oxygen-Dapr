@@ -13,7 +13,7 @@ namespace Oxygen.Client.ServerSymbol
     {
         public FuncType FuncType { get; set; }
         public string FuncDescription { get; set; }
-        public RemoteFuncAttribute(FuncType funcType = FuncType.Normal, string funcDescription = "")
+        public RemoteFuncAttribute(FuncType funcType = FuncType.Invoke, string funcDescription = "")
         {
             FuncType = funcType;
             FuncDescription = funcDescription;

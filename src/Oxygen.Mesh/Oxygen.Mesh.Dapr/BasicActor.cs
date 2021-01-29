@@ -54,7 +54,7 @@ namespace Oxygen.Mesh.Dapr
         }
         public async Task RegisterTimer(int reminderSeconds)
         {
-            await RegisterTimerAsync("SaveActorDataTimer", this.TimerCallBack, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(reminderSeconds));
+            await RegisterTimerAsync("SaveActorDataTimer", this.TimerCallBack, null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(reminderSeconds));
         }
         public async Task UnRegisterTimer()
         {
@@ -95,7 +95,7 @@ namespace Oxygen.Mesh.Dapr
                     {
                         //如果开启自动保存，但是没有设置定期更新时间，则立即触发一次保存
                         actorStateMessage.ActorData = ActorData;
-                        await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
+                        _ = Task.Run(() => lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage));//无需等待回调
                     }
                 }
             }

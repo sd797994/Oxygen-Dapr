@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Oxygen.Client.ServerSymbol;
+using Oxygen.Client.ServerSymbol.Events;
 using Oxygen.Common.Implements;
 using Oxygen.ProxyGenerator.Interface;
 using System;
@@ -26,10 +27,13 @@ namespace Oxygen.ProxyGenerator.Implements
             //获取所有标记为remote的method构造具体的proxy
             remoteservice.ToList().ForEach(x => {
                 var attr = ReflectionHelper.GetAttributeProperyiesByType<RemoteServiceAttribute>(x);
-                if (ReflectionHelper.GetTypeByInterface(x) == null)
+                var proxyInstance = ThisType.GetMethod(nameof(CreateProxyInstance)).MakeGenericMethod(x).Invoke(ThisObj, null) as RemoteDispatchProxyBase;
+                if (ReflectionHelper.GetTypeByInterface(x) == null || x.GetInterface(nameof(IActorService)) != null)
                 {
-                    var proxyInstance = ThisType.GetMethod(nameof(CreateProxyInstance)).MakeGenericMethod(x).Invoke(ThisObj, null) as RemoteDispatchProxyBase;
-                    builder.RegisterInstance(proxyInstance).As(x);
+                    if (x.GetInterface(nameof(IActorService)) != null)
+                        builder.RegisterInstance(proxyInstance).As(x).Named($"{x.FullName}ActorProxy", x);
+                    else
+                        builder.RegisterInstance(proxyInstance).As(x);
                     proxyInstance.InitRemoteRouters(x, attr.HostName, attr.ServerName ?? x.Name, ReflectionHelper.GetMethodByFilter(x, typeof(RemoteFuncAttribute)));
                     Proxies.Add(proxyInstance);
                 }

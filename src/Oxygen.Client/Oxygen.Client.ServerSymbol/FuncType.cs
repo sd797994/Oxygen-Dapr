@@ -9,7 +9,7 @@ namespace Oxygen.Client.ServerSymbol
         /// <summary>
         /// 普通web服务
         /// </summary>
-        Normal = 0,
+        Invoke = 0,
         /// <summary>
         /// actor服务
         /// </summary>

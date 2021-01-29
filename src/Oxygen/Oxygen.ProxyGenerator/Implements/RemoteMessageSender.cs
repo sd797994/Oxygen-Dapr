@@ -88,7 +88,7 @@ namespace Oxygen.ProxyGenerator.Implements
                 case SendType.actors:
                     url = $"{basepath}v1.0/actors/{host}/{((ActorSendDto)data).ActorId}/method{url}";
                     request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
-                    stringjson = serialize.SerializesJson(data);
+                    stringjson = serialize.SerializesJson(data, true);//actor json原样发送
                     request.Content = new StringContent(stringjson);
                     AddTraceHeader(request);
                     return request;

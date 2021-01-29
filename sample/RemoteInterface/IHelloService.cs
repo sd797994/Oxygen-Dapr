@@ -13,16 +13,20 @@ namespace RemoteInterface
     [RemoteService("testservice", "hello")]
     public interface IHelloService
     {
-        [RemoteFunc(FuncType.Normal)]
+        [RemoteFunc(FuncType.Invoke)]
         Task<OutDto> GetUserInfo(InputDto input);
+        [RemoteFunc(FuncType.Invoke)]
+        Task<OutDto> Test();
+    }
+    [RemoteService("testservice", "helloactor")]
+    public interface IHelloActorService : IActorService
+    {
         [RemoteFunc(FuncType.Actor)]
         Task<OutDto> GetUserInfoByActor(ActorInputDto input);
-        [RemoteFunc(FuncType.Normal)]
-        Task<OutDto> Test();
     }
     public class ActorInputDto : ActorSendDto
     {
-        public string name { get; set; }
+        public string Name { get; set; }
         public override string ActorId { get; set; }
     }
     public class InputDto

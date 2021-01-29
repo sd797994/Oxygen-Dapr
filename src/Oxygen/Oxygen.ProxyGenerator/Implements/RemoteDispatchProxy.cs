@@ -38,7 +38,7 @@ namespace Oxygen.ProxyGenerator.Implements
             {
                 var funcAttr = ReflectionHelper.GetAttributeProperyiesByMethodInfo<RemoteFuncAttribute>(x);
                 //生成服务调用代理
-                if (funcAttr.FuncType == FuncType.Normal || funcAttr.FuncType == FuncType.Actor)
+                if (funcAttr.FuncType == FuncType.Actor || funcAttr.FuncType == FuncType.Invoke)
                 {
                     RemoteRouters.Add(new RemoteRouter()
                     {
@@ -46,7 +46,7 @@ namespace Oxygen.ProxyGenerator.Implements
                         HostName = funcAttr.FuncType == FuncType.Actor ? $"{interfaceType.Name}ActorImpl" : hostName,
                         RouterName = funcAttr.FuncType == FuncType.Actor ? $"/{x.Name}" : $"/{routerName}/{x.Name}".ToLower(),
                         InputType = x.GetParameters().FirstOrDefault()?.ParameterType,
-                        SendType = funcAttr.FuncType == FuncType.Normal ? SendType.invoke : funcAttr.FuncType == FuncType.Actor ? SendType.actors : SendType.invoke,
+                        SendType = funcAttr.FuncType == FuncType.Invoke ? SendType.invoke : funcAttr.FuncType == FuncType.Actor ? SendType.actors : SendType.invoke,
                         MethodInfo = typeof(IRemoteMessageSender).GetMethod("SendMessage").MakeGenericMethod(x.ReturnParameter.ParameterType.GenericTypeArguments[0]),
                     });
                 }

@@ -14,10 +14,7 @@ namespace Oxygen.Common.Implements.JsonConverters
         {
             public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                if (DateTime.TryParse(reader.GetString(), out DateTime result))
-                    return result;
-                else
-                    return default(DateTime);
+                return CommonNumberConvter(reader, DateTime.Parse);
             }
 
             public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
@@ -31,13 +28,13 @@ namespace Oxygen.Common.Implements.JsonConverters
             {
                 try
                 {
-                    if (reader.TryGetInt32(out int result))
-                        return result;
+                    if (reader.TryGetInt32(out int value))
+                        return value;
                     return default(int);
                 }
                 catch (Exception)
                 {
-                    return default(int);
+                    return CommonNumberConvter(reader, int.Parse);
                 }
             }
 
@@ -58,7 +55,7 @@ namespace Oxygen.Common.Implements.JsonConverters
                 }
                 catch (Exception)
                 {
-                    return default(decimal);
+                    return CommonNumberConvter(reader, decimal.Parse);
                 }
             }
 
@@ -80,7 +77,7 @@ namespace Oxygen.Common.Implements.JsonConverters
                 }
                 catch (Exception)
                 {
-                    return default(double);
+                    return CommonNumberConvter(reader, double.Parse);
                 }
             }
 
@@ -96,13 +93,13 @@ namespace Oxygen.Common.Implements.JsonConverters
                 try
                 {
                     if (reader.TryGetDouble(out double value))
-                    return (float)value;
-                else
-                    return default(float);
+                        return (float)value;
+                    else
+                        return default(float);
                 }
                 catch (Exception)
                 {
-                    return default(float);
+                    return CommonNumberConvter(reader, float.Parse);
                 }
             }
 
@@ -123,7 +120,7 @@ namespace Oxygen.Common.Implements.JsonConverters
                 }
                 catch (Exception)
                 {
-                    return Guid.Empty;
+                    return CommonNumberConvter(reader, Guid.Parse);
                 }
             }
 
@@ -142,7 +139,7 @@ namespace Oxygen.Common.Implements.JsonConverters
                 }
                 catch (Exception)
                 {
-                    return default(bool);
+                    return CommonNumberConvter(reader, bool.Parse);
                 }
             }
 
@@ -150,6 +147,20 @@ namespace Oxygen.Common.Implements.JsonConverters
             {
                 writer.WriteBooleanValue(value);
             }
+        }
+        static T CommonNumberConvter<T>(Utf8JsonReader reader, Func<string, T> func)
+        {
+            try
+            {
+                var str = reader.GetString();
+                if (!string.IsNullOrEmpty(str))
+                    return func(str);
+            }
+            catch (Exception)
+            {
+
+            }
+            return default;
         }
     }
 

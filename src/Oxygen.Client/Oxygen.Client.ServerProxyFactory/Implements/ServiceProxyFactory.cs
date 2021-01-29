@@ -15,5 +15,9 @@ namespace Oxygen.Client.ServerProxyFactory.Implements
         {
             return OxygenIocContainer.Resolve<T>();
         }
+        public T CreateActorProxy<T>() where T : class
+        {
+            return OxygenIocContainer.ResolveNamed<T>($"{typeof(T).FullName}ActorProxy");
+        }
     }
 }

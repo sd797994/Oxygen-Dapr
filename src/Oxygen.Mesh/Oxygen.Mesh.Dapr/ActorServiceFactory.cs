@@ -26,39 +26,36 @@ namespace Oxygen.Mesh.Dapr
             //获取所有标记为remote的method构造具体的delegate
             remoteservice.ToList().ForEach(x =>
             {
-                if (ReflectionHelper.GetTypeByInterface(x) != null)
+                var implType = ReflectionHelper.GetTypeByInterface(x);
+                if (implType != null)
                 {
-                    var implType = ReflectionHelper.GetTypeByInterface(x);
-                    if (implType != null)
+                    var methods = new List<MethodInfo>();
+                    ReflectionHelper.GetMethodByFilter(x, typeof(RemoteFuncAttribute)).ToList().ForEach(y =>
                     {
-                        var methods = new List<MethodInfo>();
-                        ReflectionHelper.GetMethodByFilter(x, typeof(RemoteFuncAttribute)).ToList().ForEach(y =>
+                        var funcAttr = ReflectionHelper.GetAttributeProperyiesByMethodInfo<RemoteFuncAttribute>(y);
+                        //生成服务调用代理
+                        if (funcAttr.FuncType == FuncType.Actor)
                         {
-                            var funcAttr = ReflectionHelper.GetAttributeProperyiesByMethodInfo<RemoteFuncAttribute>(y);
-                            //生成服务调用代理
-                            if (funcAttr.FuncType == FuncType.Actor)
-                            {
-                                methods.Add(y);
-                            }
-                        });
-                        if (methods.Any())
+                            methods.Add(y);
+                        }
+                    });
+                    if (methods.Any())
+                    {
+                        try
                         {
-                            try
+                            var typeBuilder = ActorProxyBuilder.GetType(x, implType, methods.ToArray());
+                            Func<ActorTypeInformation, ActorService> createFunc = (info) => new ActorService(info, (actorService, actorId) =>
                             {
-                                var typeBuilder = ActorProxyBuilder.GetType(x, implType, methods.ToArray());
-                                Func<ActorTypeInformation, ActorService> createFunc = (info) => new ActorService(info, (actorService, actorId) =>
-                                {
-                                    OxygenIocContainer.BuilderIocContainer(lifetimeScope);
-                                    var obj = Activator.CreateInstance(typeBuilder.proxyType, new object[] { actorService, actorId, lifetimeScope }) as Actor;
-                                    ActorStateSubscriber.RegisterHandler(implType.BaseType.GetProperty("ActorData").PropertyType.FullName, typeBuilder.SaveDataFunc);
-                                    return obj;
-                                });
-                                typeof(ActorRuntime).GetMethod("RegisterActor").MakeGenericMethod(typeBuilder.proxyType).Invoke(actorRuntime, new object[] { createFunc });
-                            }
-                            catch (Exception e)
-                            {
-                                lifetimeScope.Resolve<ILogger>().LogError($"Actor代理创建失败，原因：{e.GetBaseException().Message}");
-                            }
+                                OxygenIocContainer.BuilderIocContainer(lifetimeScope);
+                                var obj = Activator.CreateInstance(typeBuilder.proxyType, new object[] { actorService, actorId, lifetimeScope }) as Actor;
+                                ActorStateSubscriber.RegisterHandler(implType.BaseType.GetProperty("ActorData").PropertyType.FullName, typeBuilder.SaveDataFunc);
+                                return obj;
+                            });
+                            typeof(ActorRuntime).GetMethod("RegisterActor").MakeGenericMethod(typeBuilder.proxyType).Invoke(actorRuntime, new object[] { createFunc });
+                        }
+                        catch (Exception e)
+                        {
+                            lifetimeScope.Resolve<ILogger>().LogError($"Actor代理创建失败，原因：{e.GetBaseException().Message}");
                         }
                     }
                 }

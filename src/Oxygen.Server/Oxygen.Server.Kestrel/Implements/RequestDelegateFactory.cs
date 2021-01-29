@@ -33,7 +33,7 @@ namespace Oxygen.Server.Kestrel.Implements
                     {
                         var funcAttr = ReflectionHelper.GetAttributeProperyiesByMethodInfo<RemoteFuncAttribute>(y);
                         //生成服务调用代理
-                        if (funcAttr.FuncType == FuncType.Normal)
+                        if (funcAttr.FuncType == FuncType.Invoke)
                         {
                             var requestDelegate = CreateRequestDelegate(x, srvAttr?.ServerName ?? x.Name, y, logger, messageHandler);
                             if (requestDelegate != null)

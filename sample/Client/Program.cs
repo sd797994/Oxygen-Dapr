@@ -22,6 +22,8 @@ namespace Client
                 builder.RegisterOxygenModule();
                 //注入测试demo
                 builder.RegisterType<CallServiceImpl>().As<ICallService>().InstancePerLifetimeScope();
+                builder.RegisterType<HelloActorService>().As<IHelloActorService>().InstancePerLifetimeScope();
+                builder.RegisterType<HelloRepository>().As<IHelloRepository>().InstancePerLifetimeScope();
             })
             .ConfigureLogging((hostingContext, logging) => {
                 logging.AddConsole();

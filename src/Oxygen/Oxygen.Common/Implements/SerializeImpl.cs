@@ -69,13 +69,16 @@ namespace Oxygen.Common.Implements
         /// <typeparam name="T"></typeparam>
         /// <param name="input"></param>
         /// <returns></returns>
-        public string SerializesJson<T>(T input)
+        public string SerializesJson<T>(T input, bool IngoreOptions = false)
         {
             if (input == null)
                 return default(string);
             try
             {
-                return JsonSerializer.Serialize(input, JsonSerializerOptions.Value);
+                if(IngoreOptions)
+                    return JsonSerializer.Serialize(input);
+                else
+                    return JsonSerializer.Serialize(input, JsonSerializerOptions.Value);
             }
             catch (Exception e)
             {

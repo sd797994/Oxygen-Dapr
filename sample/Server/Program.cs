@@ -28,7 +28,6 @@ namespace Server
                 //注入测试demo
                 builder.RegisterType<HelloServiceImpl>().As<IHelloService>().InstancePerLifetimeScope();
                 builder.RegisterType<HelloEventHandler>().As<HelloEventHandler>().InstancePerLifetimeScope();
-                builder.RegisterType<HelloRepository>().As<IHelloRepository>().InstancePerLifetimeScope();
             })
             .ConfigureLogging((hostingContext, logging) => {
                 logging.AddConsole();

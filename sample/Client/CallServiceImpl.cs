@@ -1,6 +1,8 @@
 ﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using Oxygen.Client.ServerProxyFactory.Interface;
 using Oxygen.Mesh.Dapr;
+using Oxygen.Mesh.Dapr.Model;
 using RemoteInterface;
 using System;
 using System.Collections.Concurrent;
@@ -31,13 +33,14 @@ namespace Client
         public async Task<InputDto> RemoteCallTest(InputDto input)
         {
             var helloService = serviceProxyFactory.CreateProxy<IHelloService>();
+            var helloactorService = serviceProxyFactory.CreateActorProxy<IHelloActorService>();
             await stateManager.SetState(new TestStateDto("mykey", true));
             var getState = await stateManager.GetState<bool>(new TestStateDto("mykey"));
             var delState = await stateManager.DelState(new TestStateDto("mykey"));
             var invokeresult = await helloService.GetUserInfo(new InputDto() { name = "xiaoming" });
             var invokenoinputresult = await helloService.Test();
             var eventresult = await eventBus.SendEvent("test", new TestEventDto() { myword = "abc" });
-            var actorresult = await helloService.GetUserInfoByActor(new ActorInputDto() { name = "xiaoming", ActorId = "1" });
+            var actorresult = await helloactorService.GetUserInfoByActor(new ActorInputDto() { Name = "xiaoming", ActorId = "1" });
             return new InputDto() { name = $"RPC无参调用成功，回调：{JsonSerializer.Serialize(invokenoinputresult)},RPC有参调用成功，回调：{JsonSerializer.Serialize(invokeresult)},事件发送{(eventresult != null ? "成功" : "失败")},状态写入成功，值：{getState},actor调用成功，回调：{JsonSerializer.Serialize(actorresult)}" };
         }
         public async Task<MultipleTestOutput> MultipleTest(MultipleTestInput input)
@@ -77,6 +80,56 @@ namespace Client
                 CustTimes = _sw.ElapsedMilliseconds,
                 Detail = string.Join(",", times.Where(x => x > 100).ToList())
             };
+        }
+    }
+
+    public class HelloActorService : BaseActorService<MyActor>, IHelloActorService
+    {
+        private readonly ILogger<HelloActorService> logger;
+        private readonly IStateManager stateManager;
+        public HelloActorService(ILogger<HelloActorService> logger, IStateManager stateManager)
+        {
+            this.logger = logger;
+            this.stateManager = stateManager;
+        }
+        public async Task<OutDto> GetUserInfoByActor(ActorInputDto input)
+        {
+            if (ActorData == null)
+                ActorData = new MyActor() { Index = 0, AutoSave = true };
+            ActorData.Index++;
+            if (ActorData.Index == 10)
+                ActorData.DeleteModel();
+            return await Task.FromResult(new OutDto() { Word = $"hello {input.Name},your id is {ActorData.Index}" });
+        }
+
+        public override async Task SaveData(MyActor data, ILifetimeScope scope)
+        {
+            if (data != null)
+                await scope.Resolve<IHelloRepository>().SaveData(data);
+            await Task.CompletedTask;
+        }
+    }
+    public class MyActor : ActorStateModel
+    {
+        public int Index { get; set; }
+        public override bool AutoSave { get; set; }
+        public override int ReminderSeconds { get => 0; }
+    }
+    public interface IHelloRepository
+    {
+        Task SaveData(MyActor actor);
+    }
+    public class HelloRepository : IHelloRepository
+    {
+        public Guid? Id { get; set; }
+        public HelloRepository()
+        {
+            Id = Id ?? Guid.NewGuid();
+        }
+        public async Task SaveData(MyActor actor)
+        {
+            Console.WriteLine($"仓储实例ID：{Id}，持久化对象：{actor?.Index}");
+            await Task.CompletedTask;
         }
     }
 }

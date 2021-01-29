@@ -23,7 +23,7 @@ namespace Oxygen.Common.Interface
         /// <typeparam name="T"></typeparam>
         /// <param name="input"></param>
         /// <returns></returns>
-        string SerializesJson<T>(T input);
+        string SerializesJson<T>(T input, bool IngoreOptions = false);
         /// <summary>
         /// 序列化json字符串为Byte[]
         /// </summary>

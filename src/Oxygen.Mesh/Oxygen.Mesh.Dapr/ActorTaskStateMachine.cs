@@ -45,7 +45,7 @@ namespace Oxygen.Mesh.Dapr
                 else
                 {
                     service.ActorData = this.actor.ActorData;
-                    localAwaiter = LocalMethodAopProvider.UsePipelineHandlerWithActor(input, HttpContextExtension.ContextWapper.Value, func).GetAwaiter();
+                    localAwaiter = func(input).GetAwaiter();
                     if (!localAwaiter.IsCompleted)
                     {
                         num = state = 0;
