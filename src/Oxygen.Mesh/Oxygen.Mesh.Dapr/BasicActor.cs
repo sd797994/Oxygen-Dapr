@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using Dapr.Actors;
 using Dapr.Actors.Runtime;
-using MediatR;
+using Oxygen.Common.Interface;
 using Oxygen.Mesh.Dapr.Model;
 using System;
 using System.Collections.Generic;
@@ -16,13 +16,15 @@ namespace Oxygen.Mesh.Dapr
     {
         public T ActorData { get; set; }
         private readonly ILifetimeScope lifetimeScope;
-        public ActorStateMessage actorStateMessage;
+        private readonly IInProcessEventBus eventBus;
+        public string Topic;
         public bool registerTimerState;
         public BasicActor(ActorService actorService, ActorId actorId, ILifetimeScope lifetimeScope) : base(actorService, actorId)
         {
             this.lifetimeScope = lifetimeScope;
-            actorStateMessage = new ActorStateMessage() { ActorName = typeof(T).FullName };
+            Topic = typeof(T).FullName;
             registerTimerState = false;
+            eventBus = lifetimeScope.Resolve<IInProcessEventBus>();
         }
         /// <summary>
         /// actor激活事件
@@ -38,7 +40,6 @@ namespace Oxygen.Mesh.Dapr
                     ActorData = result.Value;
                     if (ActorData != null)
                     {
-                        actorStateMessage.ActorData = ActorData;
                         //为actor注册定时器定时发送持久化消息
                         if (ActorData.AutoSave == true && ActorData.ReminderSeconds > 0)
                         {
@@ -88,8 +89,7 @@ namespace Oxygen.Mesh.Dapr
                         if (ActorData.ReminderSeconds == 0)
                         {
                             //如果开启自动保存，但是没有设置定期更新时间，则立即触发一次保存
-                            actorStateMessage.ActorData = ActorData;
-                            _ = Task.Run(() => lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage));//无需等待回调
+                            await SendEvent<T, ActorStateModel>(ActorData);
                         }
                     }
                 }
@@ -100,8 +100,7 @@ namespace Oxygen.Mesh.Dapr
                 {
                     if (ActorData.CheckVersionChange())
                     {
-                        actorStateMessage.ActorData = ActorData;
-                        await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
+                        await SendEvent<T, ActorStateModel>(ActorData);
                     }
                 }
             }
@@ -114,8 +113,11 @@ namespace Oxygen.Mesh.Dapr
         protected override async Task OnDeactivateAsync()
         {
             //actor被回收时需要发送持久化消息
-            actorStateMessage.ActorData = ActorData;
-            await lifetimeScope.Resolve<IMediator>().Publish(actorStateMessage);
+            await SendEvent<T, ActorStateModel>(ActorData);
+        }
+        protected async Task SendEvent<Tin, Tconv>(Tin input) where Tconv : class
+        {
+            await eventBus.SendEvent(Topic, input as Tconv);
         }
     }
 }

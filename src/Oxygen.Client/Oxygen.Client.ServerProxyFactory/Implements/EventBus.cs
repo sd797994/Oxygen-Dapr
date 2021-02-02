@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Oxygen.Client.ServerProxyFactory.Implements
 {
-    public class EventBus: IEventBus
+    public class EventBus : IEventBus
     {
         private readonly IRemoteMessageSender messageSender;
         public EventBus(IRemoteMessageSender messageSender)

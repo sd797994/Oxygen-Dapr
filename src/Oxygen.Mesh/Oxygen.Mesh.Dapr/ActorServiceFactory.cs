@@ -48,7 +48,7 @@ namespace Oxygen.Mesh.Dapr
                             {
                                 OxygenIocContainer.BuilderIocContainer(lifetimeScope);
                                 var obj = Activator.CreateInstance(typeBuilder.proxyType, new object[] { actorService, actorId, lifetimeScope }) as Actor;
-                                ActorStateSubscriber.RegisterHandler(implType.BaseType.GetProperty("ActorData").PropertyType.FullName, typeBuilder.SaveDataFunc);
+                                lifetimeScope.Resolve<ISubscribeInProcessFactory>().RegisterEventHandler(implType.BaseType.GetProperty("ActorData").PropertyType.FullName, lifetimeScope, typeBuilder.SaveDataFunc);
                                 return obj;
                             });
                             typeof(ActorRuntime).GetMethod("RegisterActor").MakeGenericMethod(typeBuilder.proxyType).Invoke(actorRuntime, new object[] { createFunc });
