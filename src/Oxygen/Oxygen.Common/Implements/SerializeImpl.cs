@@ -30,6 +30,7 @@ namespace Oxygen.Common.Implements
             options.Converters.Add(new TextJsonConverter.DateTimeParse());
             options.Converters.Add(new TextJsonConverter.IntParse());
             options.Converters.Add(new TextJsonConverter.DoubleParse());
+            options.Converters.Add(new TextJsonConverter.DecimalParse());
             options.Converters.Add(new TextJsonConverter.FloatParse());
             options.Converters.Add(new TextJsonConverter.GuidParse());
             options.Converters.Add(new TextJsonConverter.BoolParse());
