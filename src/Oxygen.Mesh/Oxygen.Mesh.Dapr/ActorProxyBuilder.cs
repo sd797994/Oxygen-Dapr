@@ -5,6 +5,7 @@ using Oxygen.Client.ServerSymbol.Actors;
 using Oxygen.Mesh.Dapr.Model;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -57,6 +58,7 @@ namespace Oxygen.Mesh.Dapr
             ilOfCtor.Emit(OpCodes.Ret);
             foreach (var method in methods)
             {
+                var createexpressionmethod = typeof(DynamicMethodBuilder).GetMethod("CreateMethodDelegate",new Type[] { typeof(Type), typeof(string) }).MakeGenericMethod(interfaceServiceType, method.GetParameters().FirstOrDefault().ParameterType, method.ReturnType);
                 var inferfacemethod = interfaceType.GetMethod(method.Name);
                 var methodBldr = typeBldr.DefineMethod(method.Name, MethodAttributes.PrivateScope | MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.VtableLayoutMask, method.ReturnType, method.GetParameters().Select(x => x.ParameterType).ToArray());
                 var paramIndex = 0;
@@ -69,33 +71,20 @@ namespace Oxygen.Mesh.Dapr
                 var buildType = typeof(AsyncTaskMethodBuilder<>).MakeGenericType(method.ReturnType.GetGenericArguments()[0]);
                 il.DeclareLocal(typeof(ILifetimeScope));
                 il.DeclareLocal(interfaceServiceType);
-                var funcType = typeof(Func<,>).MakeGenericType(method.GetParameters().FirstOrDefault().ParameterType, method.ReturnType);
+                var funcType = typeof(Func<,,>).MakeGenericType(interfaceServiceType, method.GetParameters().FirstOrDefault().ParameterType, method.ReturnType); 
                 il.DeclareLocal(funcType);
-                var machineType = typeof(ActorAsyncStateMachine<,,,>).MakeGenericType(implType, method.GetParameters().FirstOrDefault().ParameterType, method.ReturnType.GetGenericArguments()[0], baseAcotModelType);
+                var machineType = typeof(ActorAsyncStateMachine<,,,>).MakeGenericType(interfaceServiceType, method.GetParameters().FirstOrDefault().ParameterType, method.ReturnType.GetGenericArguments()[0], baseAcotModelType);
                 il.DeclareLocal(machineType);
                 il.DeclareLocal(method.ReturnType);
                 il.Emit(OpCodes.Nop);
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldfld, fieldImpl);
-                il.Emit(OpCodes.Callvirt, typeof(ILifetimeScope).GetMethod("BeginLifetimeScope", new Type[] { }));
-                il.Emit(OpCodes.Stloc_0);
-                il.BeginExceptionBlock();
-                il.Emit(OpCodes.Nop);
-                il.Emit(OpCodes.Ldloc_0);
-                il.Emit(OpCodes.Call, typeof(ResolutionExtensions).GetMethod("Resolve", new Type[] { typeof(IComponentContext) }).MakeGenericMethod(interfaceServiceType));
-                il.Emit(OpCodes.Stloc_1);
                 il.Emit(OpCodes.Ldtoken, interfaceServiceType);
-                il.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle", new Type[] { typeof(RuntimeTypeHandle) }));
                 il.Emit(OpCodes.Ldstr, method.Name);
-                il.Emit(OpCodes.Call, typeof(Type).GetMethods().FirstOrDefault(x => x.Name.Equals("GetMethod")));
-                il.Emit(OpCodes.Ldtoken, funcType);
-                il.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle", new Type[] { typeof(RuntimeTypeHandle) }));
-                il.Emit(OpCodes.Ldloc_1);
-                il.Emit(OpCodes.Callvirt, typeof(MethodInfo).GetMethod("CreateDelegate", new Type[] { typeof(Type), typeof(object) }));
+                il.Emit(OpCodes.Call, createexpressionmethod);
                 il.Emit(OpCodes.Castclass, funcType);
                 il.Emit(OpCodes.Stloc_2);
                 il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldloc_1);
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Ldfld, fieldImpl);
                 il.Emit(OpCodes.Ldloc_2);
                 il.Emit(OpCodes.Ldarg_1);
                 il.Emit(OpCodes.Newobj, machineType.GetConstructors()[0]);
@@ -108,13 +97,6 @@ namespace Oxygen.Mesh.Dapr
                 il.Emit(OpCodes.Ldloc_3);
                 il.Emit(OpCodes.Ldflda, machineType.GetField("builder"));
                 il.Emit(OpCodes.Call, buildType.GetMethod("get_Task"));
-                il.Emit(OpCodes.Stloc, 4);
-                il.BeginFinallyBlock();
-                il.Emit(OpCodes.Ldloc_0);
-                il.Emit(OpCodes.Callvirt, typeof(IDisposable).GetMethod("Dispose"));
-                il.Emit(OpCodes.Nop);
-                il.EndExceptionBlock();
-                il.Emit(OpCodes.Ldloc, 4);
                 il.Emit(OpCodes.Ret);
                 typeBldr.DefineMethodOverride(methodBldr, inferfacemethod);
             }
@@ -131,6 +113,19 @@ namespace Oxygen.Mesh.Dapr
             ilsave.Emit(OpCodes.Ret);
             Func<ActorStateModel, ILifetimeScope, Task> saveDataFunc = (Func<ActorStateModel, ILifetimeScope, Task>)saveData.CreateDelegate(typeof(Func<ActorStateModel, ILifetimeScope, Task>));
             return (interfaceType, typeBldr.CreateType(), saveDataFunc);
+        }
+    }
+    public static class DynamicMethodBuilder
+    {
+        public static Func<TObj, Tin, Tout> CreateMethodDelegate<TObj, Tin, Tout>(Type type, string methodName)
+        {
+            MethodInfo method = type.GetMethod(methodName);
+            var mParameter = Expression.Parameter(typeof(TObj), "m");
+            var pParameter = Expression.Parameter(typeof(Tin), "p");
+            var mcExpression = Expression.Call(mParameter, method, Expression.Convert(pParameter, typeof(Tin)));
+            var reExpression = Expression.Convert(mcExpression, typeof(Tout));
+            var result = Expression.Lambda<Func<TObj, Tin, Tout>>(reExpression, mParameter, pParameter).Compile();
+            return result;
         }
     }
 }

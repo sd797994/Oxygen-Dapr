@@ -15,13 +15,11 @@ namespace Oxygen.Mesh.Dapr
     public class BasicActor<T> : Actor where T : ActorStateModel
     {
         public T ActorData { get; set; }
-        private readonly ILifetimeScope lifetimeScope;
         private readonly IInProcessEventBus eventBus;
         public string Topic;
         public bool registerTimerState;
         public BasicActor(ActorService actorService, ActorId actorId, ILifetimeScope lifetimeScope) : base(actorService, actorId)
         {
-            this.lifetimeScope = lifetimeScope;
             Topic = typeof(T).FullName;
             registerTimerState = false;
             eventBus = lifetimeScope.Resolve<IInProcessEventBus>();
@@ -70,11 +68,11 @@ namespace Oxygen.Mesh.Dapr
         /// <returns></returns>
         protected override async Task OnPostActorMethodAsync(ActorMethodContext actorMethodContext)
         {
-            if (actorMethodContext.CallType == ActorCallType.ActorInterfaceMethod)
+            if (ActorData != null && ActorData.AutoSave)
             {
-                ActorData.UpdateVersion();//方法调用后强制升级一次版本
-                if (ActorData != null && ActorData.AutoSave)
+                if (actorMethodContext.CallType == ActorCallType.ActorInterfaceMethod)
                 {
+                    ActorData.UpdateVersion();//方法调用后强制升级一次版本
                     if (ActorData.IsDelete)
                     {
                         if (await StateManager.TryRemoveStateAsync("ActorData"))
@@ -93,14 +91,14 @@ namespace Oxygen.Mesh.Dapr
                         }
                     }
                 }
-            }
-            else
-            {
-                if (ActorData != null && ActorData.AutoSave)
+                else
                 {
-                    if (ActorData.CheckVersionChange())
+                    if (ActorData != null && ActorData.AutoSave)
                     {
-                        await SendEvent<T, ActorStateModel>(ActorData);
+                        if (ActorData.CheckVersionChange())
+                        {
+                            await SendEvent<T, ActorStateModel>(ActorData);
+                        }
                     }
                 }
             }
@@ -113,7 +111,8 @@ namespace Oxygen.Mesh.Dapr
         protected override async Task OnDeactivateAsync()
         {
             //actor被回收时需要发送持久化消息
-            await SendEvent<T, ActorStateModel>(ActorData);
+            if (ActorData != null && ActorData.AutoSave)
+                await SendEvent<T, ActorStateModel>(ActorData);
         }
         protected async Task SendEvent<Tin, Tconv>(Tin input) where Tconv : class
         {

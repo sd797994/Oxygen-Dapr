@@ -87,15 +87,17 @@ namespace Client
     {
         private readonly ILogger<HelloActorService> logger;
         private readonly IStateManager stateManager;
-        public HelloActorService(ILogger<HelloActorService> logger, IStateManager stateManager)
+        private readonly IHelloRepository helloRepository;
+        public HelloActorService(ILogger<HelloActorService> logger, IStateManager stateManager, IHelloRepository helloRepository)
         {
             this.logger = logger;
             this.stateManager = stateManager;
+            this.helloRepository = helloRepository;
         }
         public async Task<OutDto> GetUserInfoByActor(ActorInputDto input)
         {
             if (ActorData == null)
-                ActorData = new MyActor() { Index = 0, AutoSave = true };
+                ActorData = await helloRepository.GetData();
             ActorData.Index++;
             if (ActorData.Index == 10)
                 ActorData.DeleteModel();
@@ -105,7 +107,7 @@ namespace Client
         public override async Task SaveData(MyActor data, ILifetimeScope scope)
         {
             if (data != null)
-                await scope.Resolve<IHelloRepository>().SaveData(data);
+                await helloRepository.SaveData(data);
             await Task.CompletedTask;
         }
     }
@@ -117,19 +119,32 @@ namespace Client
     }
     public interface IHelloRepository
     {
+        Task<MyActor> GetData();
         Task SaveData(MyActor actor);
     }
-    public class HelloRepository : IHelloRepository
+    public class HelloRepository : IHelloRepository, IDisposable
     {
         public Guid? Id { get; set; }
         public HelloRepository()
         {
             Id = Id ?? Guid.NewGuid();
+            Console.WriteLine("模拟ef上下文实例化");
         }
         public async Task SaveData(MyActor actor)
         {
             Console.WriteLine($"仓储实例ID：{Id}，持久化对象：{actor?.Index}");
             await Task.CompletedTask;
+        }
+
+        public async Task<MyActor> GetData()
+        {
+            await Task.Delay(2000);
+            return new MyActor() { Index = 0, AutoSave = true };
+        }
+
+        public void Dispose()
+        {
+            Console.WriteLine("模拟ef上下文释放");
         }
     }
 }

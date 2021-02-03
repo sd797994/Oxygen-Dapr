@@ -1,4 +1,5 @@
-﻿using Oxygen.Common.Implements;
+﻿using Autofac;
+using Oxygen.Common.Implements;
 using Oxygen.Mesh.Dapr.Model;
 using Oxygen.ProxyGenerator.Implements;
 using System;
@@ -9,20 +10,22 @@ using System.Threading.Tasks;
 
 namespace Oxygen.Mesh.Dapr
 {
-    public class ActorAsyncStateMachine<TService, TInput, TOutput, TActorModel> : IAsyncStateMachine where TActorModel : ActorStateModel where TService : BaseActorService<TActorModel>
+    public class ActorAsyncStateMachine<TService, TInput, TOutput, TActorModel> : IAsyncStateMachine where TActorModel : ActorStateModel
     {
         public int state;
         public AsyncTaskMethodBuilder<TOutput> builder;
-        private TService service;
-        private Func<TInput, Task<TOutput>> func;
+        private ILifetimeScope lifetimeScope;
+        private Func<TService, TInput, Task<TOutput>> func;
         private TInput input;
+        private TService service;
+        private ILifetimeScope tempscope;
         private TaskAwaiter<TOutput> awaiter;
         private BasicActor<TActorModel> actor;
 
-        public ActorAsyncStateMachine(BasicActor<TActorModel> actor, TService service, Func<TInput, Task<TOutput>> func, TInput input)
+        public ActorAsyncStateMachine(BasicActor<TActorModel> actor, ILifetimeScope lifetimeScope, Func<TService, TInput, Task<TOutput>> func, TInput input)
         {
             this.actor = actor;
-            this.service = service;
+            this.lifetimeScope = lifetimeScope;
             this.func = func;
             this.input = input;
             this.builder = AsyncTaskMethodBuilder<TOutput>.Create();
@@ -34,8 +37,10 @@ namespace Oxygen.Mesh.Dapr
             TaskAwaiter<TOutput> localAwaiter;
             ActorAsyncStateMachine<TService, TInput, TOutput, TActorModel> stateMachine;
             int num = state;
+            tempscope = tempscope ?? lifetimeScope.BeginLifetimeScope();
             try
             {
+                service = service ?? tempscope.Resolve<TService>();
                 if (num == 0)
                 {
                     localAwaiter = awaiter;
@@ -44,8 +49,8 @@ namespace Oxygen.Mesh.Dapr
                 }
                 else
                 {
-                    service.ActorData = this.actor.ActorData;
-                    localAwaiter = func(input).GetAwaiter();
+                    (service as BaseActorService<TActorModel>).ActorData = this.actor.ActorData;
+                    localAwaiter = func(service,input).GetAwaiter();
                     if (!localAwaiter.IsCompleted)
                     {
                         num = state = 0;
@@ -56,12 +61,16 @@ namespace Oxygen.Mesh.Dapr
                     }
                 }
                 result = localAwaiter.GetResult();
-                this.actor.ActorData = service.ActorData;
+                this.actor.ActorData = (service as BaseActorService<TActorModel>).ActorData;
             }
             catch (Exception exx)
             {
                 state = -2;
                 builder.SetException(exx);
+            }
+            finally
+            {
+                tempscope.Dispose();
             }
             state = -2;
             builder.SetResult(result);
