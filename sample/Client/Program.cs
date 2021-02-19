@@ -1,8 +1,11 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Oxygen.IocModule;
+using Oxygen.Mesh.Dapr;
+using Oxygen.Server.Kestrel.Implements;
 using RemoteInterface;
 using System.Threading.Tasks;
 
@@ -21,6 +24,15 @@ namespace Client
             await CreateDefaultHost(args).Build().RunAsync();
         }
         static IHostBuilder CreateDefaultHost(string[] args) => new HostBuilder()
+            .ConfigureWebHostDefaults(webhostbuilder => {
+                //注册成为oxygen服务节点
+               webhostbuilder.StartOxygenServer<OxygenActorStartup>((config) => {
+                    config.Port = 80;
+                    config.PubSubCompentName = "pubsub";
+                    config.StateStoreCompentName = "statestore";
+                    config.TracingHeaders = "Authentication";
+                });
+            })
             .ConfigureContainer<ContainerBuilder>(builder =>
             {
                 //注入oxygen依赖
@@ -35,13 +47,6 @@ namespace Client
             })
             .ConfigureServices((context, services) =>
             {
-                //注册成为oxygen服务节点
-                services.StartOxygenServer((config) => {
-                    config.Port = 80;
-                    config.PubSubCompentName = "pubsub";
-                    config.StateStoreCompentName = "statestore";
-                    config.TracingHeaders = "Authentication";
-                });
                 services.AddAutofac();
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory());

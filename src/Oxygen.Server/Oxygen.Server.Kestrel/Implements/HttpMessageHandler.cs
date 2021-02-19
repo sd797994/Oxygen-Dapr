@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Oxygen.Common.Interface;
-using Oxygen.IServer;
 using Oxygen.Server.Kestrel.Interface;
 using System;
 using System.Collections.Generic;

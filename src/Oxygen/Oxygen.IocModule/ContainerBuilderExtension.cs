@@ -1,13 +1,19 @@
 ﻿using Autofac;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Oxygen.Common;
+using Oxygen.Mesh.Dapr;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Oxygen.IocModule
 {
-    public static class HostBuilderExtension
+    public static class ContainerBuilderExtension
     {
         /// <summary>
         /// 依赖注入IOC模块
@@ -22,17 +28,6 @@ namespace Oxygen.IocModule
             builder.RegisterModule(new ProxyGenerator.Module());
             builder.RegisterModule(new Client.ServerProxyFactory.Module());
             return builder;
-        }
-        /// <summary>
-        /// 注入web服务
-        /// </summary>
-        /// <param name="collection"></param>
-        public static void StartOxygenServer(this IServiceCollection collection, Action<DaprConfig> action)
-        {
-            action(DaprConfig.GetCurrent());
-            //Port = port;
-            collection.AddHttpClient();
-            collection.AddHostedService<OxygenHostService>();
         }
     }
 }

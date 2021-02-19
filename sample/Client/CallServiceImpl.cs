@@ -1,6 +1,9 @@
 ﻿using Autofac;
+using Dapr.Actors;
+using Dapr.Actors.Client;
 using Microsoft.Extensions.Logging;
 using Oxygen.Client.ServerProxyFactory.Interface;
+using Oxygen.Common.Interface;
 using Oxygen.Mesh.Dapr;
 using Oxygen.Mesh.Dapr.Model;
 using RemoteInterface;
@@ -10,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -24,11 +28,13 @@ namespace Client
         private readonly IServiceProxyFactory serviceProxyFactory;
         private readonly IEventBus eventBus;
         private readonly IStateManager stateManager;
-        public CallServiceImpl(IServiceProxyFactory serviceProxyFactory, IEventBus eventBus, IStateManager stateManager)
+        private readonly ISerialize serialize;
+        public CallServiceImpl(IServiceProxyFactory serviceProxyFactory, ISerialize serialize, IEventBus eventBus, IStateManager stateManager)
         {
             this.serviceProxyFactory = serviceProxyFactory;
             this.eventBus = eventBus;
             this.stateManager = stateManager;
+            this.serialize = serialize;
         }
         public async Task<InputDto> RemoteCallTest(InputDto input)
         {
@@ -138,7 +144,6 @@ namespace Client
 
         public async Task<MyActor> GetData()
         {
-            await Task.Delay(2000);
             return new MyActor() { Index = 0, AutoSave = true };
         }
 

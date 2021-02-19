@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Oxygen.Client.ServerSymbol;
 using Oxygen.Client.ServerSymbol.Events;
+using Oxygen.Server.Kestrel.Implements;
 using RemoteInterface;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace Server
         [EventHandlerFunc("test")]
         public async Task<DefaultEventHandlerResponse> SubscribeByUserInfoEvent(EventHandleRequest<TestEventDto> input)
         {
-            logger.LogInformation($"订阅器收到消息：{JsonSerializer.Serialize(input.data, new JsonSerializerOptions() { Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) })}");
+            logger.LogInformation($"订阅器收到消息：{JsonSerializer.Serialize(input.GetData(), new JsonSerializerOptions() { Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) })}");
             return await Task.FromResult(DefaultEventHandlerResponse.Default());
         }
     }

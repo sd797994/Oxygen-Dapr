@@ -1,36 +1,31 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Hosting;
-using Oxygen.Common;
 using Oxygen.Common.Implements;
-using Oxygen.Mesh.Dapr;
 using Oxygen.ProxyGenerator.Implements;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Oxygen.IocModule
+namespace Oxygen.Server.Kestrel.Implements
 {
     internal class OxygenHostService : IHostedService
     {
-        private readonly IServer.IServer server;
-        private readonly ILifetimeScope lifetimeScope;
-        public OxygenHostService(IServer.IServer server, ILifetimeScope lifetimeScope)
+        public OxygenHostService(ILifetimeScope lifetimeScope)
         {
-            this.server = server;
             OxygenIocContainer.BuilderIocContainer(lifetimeScope);
             RemoteProxyGenerator.InitRemoteMessageSenderDelegate();//初始化消息发送代理
-            this.lifetimeScope = lifetimeScope;
         }
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await server.OpenServer((x) => ActorServiceFactory.RegisterActorService(x, lifetimeScope), DaprConfig.GetCurrent().Port);
+            await Task.CompletedTask;
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            await server.CloseServer();
+            await Task.CompletedTask;
         }
     }
 }

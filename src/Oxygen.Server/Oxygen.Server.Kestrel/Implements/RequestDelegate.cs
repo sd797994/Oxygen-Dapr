@@ -41,9 +41,8 @@ namespace Oxygen.Server.Kestrel.Implements
         }
         internal Func<Tobj, Tin, Task<Tout>> MethodDelegate { get; set; }
         internal Func<Tobj, Task<Tout>> NoInputMethodDelegate { get; set; }
-        internal override async Task Excute(HttpContext ctx, ILifetimeScope lifetimeScope)
+        internal override async Task Excute(HttpContext ctx, ILifetimeScope scope)
         {
-            using var scope = lifetimeScope.BeginLifetimeScope();
             OxygenIocContainer.BuilderIocContainer(scope);//仅在当前请求内创建上下文模型
             byte[] result = new byte[0];
             ctx.Response.ContentType = "application/json";

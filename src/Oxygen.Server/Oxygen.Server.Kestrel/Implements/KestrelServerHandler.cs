@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using Autofac.Core;
+using Autofac.Core.Lifetime;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Internal;
@@ -18,12 +20,12 @@ namespace Oxygen.Server.Kestrel.Implements
     {
         private readonly ILogger logger;
         private readonly IMessageHandler messageHandler;
-        private readonly ILifetimeScope container;
+        private static ISharingLifetimeScope Container;
         public KestrelServerHandler(ILogger logger, IMessageHandler messageHandler, ILifetimeScope container)
         {
             this.logger = logger;
             this.messageHandler = messageHandler;
-            this.container = container;
+            Container = ((LifetimeScope)container).RootLifetimeScope;
         }
         public void BuildHandler(IApplicationBuilder app, ISerialize serialize)
         {
@@ -33,7 +35,11 @@ namespace Oxygen.Server.Kestrel.Implements
                 {
                     handle.MapWhen(p => p.Request.Method.Equals("POST"), builder =>
                     {
-                        builder.Run(ctx => x.Excute(ctx, container));
+                        builder.Run(async ctx =>
+                        {
+                            using var lifetimescope = Container.BeginLifetimeScope();//每次从静态根容器引用构造一个独立的生命周期范围
+                            await x.Excute(ctx, lifetimescope);
+                        });
                     });
                 });
             });

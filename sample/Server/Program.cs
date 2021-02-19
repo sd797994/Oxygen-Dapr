@@ -5,7 +5,9 @@ using Microsoft.Extensions.Logging;
 using Oxygen.Client.ServerSymbol.Events;
 using Oxygen.Common.Implements;
 using Oxygen.IocModule;
+using Oxygen.Mesh.Dapr;
 using Oxygen.ProxyGenerator.Implements;
+using Oxygen.Server.Kestrel.Implements;
 using RemoteInterface;
 using System;
 using System.Text.Json;
@@ -21,6 +23,15 @@ namespace Server
             await CreateDefaultHost(args).Build().RunAsync();
         }
         static IHostBuilder CreateDefaultHost(string[] args) => new HostBuilder()
+            .ConfigureWebHostDefaults(webhostbuilder => {
+                //注册成为oxygen服务节点
+                webhostbuilder.StartOxygenServer<OxygenActorStartup>((config) => {
+                    config.Port = 80;
+                    config.PubSubCompentName = "pubsub";
+                    config.StateStoreCompentName = "statestore";
+                    config.TracingHeaders = "Authentication";
+                });
+            })
             .ConfigureContainer<ContainerBuilder>(builder =>
             {
                 //注入oxygen依赖
@@ -34,13 +45,6 @@ namespace Server
             })
             .ConfigureServices((context, services) =>
             {
-                //注册成为oxygen服务节点
-                services.StartOxygenServer((config) => { 
-                    config.Port = 80; 
-                    config.PubSubCompentName = "pubsub";
-                    config.StateStoreCompentName = "statestore";
-                    config.TracingHeaders = "Authentication";
-                });
                 //注册全局拦截器
                 LocalMethodAopProvider.RegisterPipelineHandler((methodctx) => {
                     HttpContextCurrent.SetCurrent(methodctx);

@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Dapr.Actors;
 using Dapr.Actors.Runtime;
+using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
 using Oxygen.Mesh.Dapr.Model;
 using System;
@@ -18,11 +19,11 @@ namespace Oxygen.Mesh.Dapr
         private readonly IInProcessEventBus eventBus;
         public string Topic;
         public bool registerTimerState;
-        public BasicActor(ActorService actorService, ActorId actorId, ILifetimeScope lifetimeScope) : base(actorService, actorId)
+        public BasicActor(ActorHost host, ILifetimeScope lifetimeScope) : base(host)
         {
             Topic = typeof(T).FullName;
             registerTimerState = false;
-            eventBus = lifetimeScope.Resolve<IInProcessEventBus>();
+            this.eventBus = lifetimeScope.Resolve<IInProcessEventBus>();
         }
         /// <summary>
         /// actor激活事件
@@ -51,13 +52,13 @@ namespace Oxygen.Mesh.Dapr
         }
         public async Task RegisterTimer(int reminderSeconds)
         {
-            await RegisterTimerAsync("SaveActorDataTimer", this.TimerCallBack, null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(reminderSeconds));
+            await RegisterTimerAsync("SaveActorDataTimer", nameof(this.TimerCallBack), null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(reminderSeconds));
         }
         public async Task UnRegisterTimer()
         {
             await UnregisterReminderAsync("SaveActorDataTimer");
         }
-        private async Task TimerCallBack(object data)
+        public async Task TimerCallBack(object data)
         {
             await Task.CompletedTask;
         }

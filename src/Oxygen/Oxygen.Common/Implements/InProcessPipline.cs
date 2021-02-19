@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using Autofac.Core;
+using Autofac.Core.Lifetime;
 using Oxygen.Common.Interface;
 using System;
 using System.Collections.Generic;
@@ -19,11 +21,12 @@ namespace Oxygen.Common.Implements
     {
         public InProcessPipline() { }
         private readonly ILogger logger;
+        private static ISharingLifetimeScope Container;
         public InProcessPipline(ILifetimeScope lifetimeScope, Func<T, ILifetimeScope, Task> eventHandler)
         {
             this.Pipline = Channel.CreateUnbounded<T>();
             this.EventHandler = eventHandler;
-            this.LifetimeScope = lifetimeScope;
+            Container = ((LifetimeScope)lifetimeScope).RootLifetimeScope;
             logger = lifetimeScope.Resolve<ILogger>();
             _ = SubscribeHandleInvoke();
         }
@@ -33,7 +36,7 @@ namespace Oxygen.Common.Implements
             {
                 try
                 {
-                    using var lifescope = LifetimeScope.BeginLifetimeScope();
+                    using var lifescope = Container.BeginLifetimeScope();
                     await EventHandler(message, lifescope);
                 }
                 catch (Exception e)
@@ -43,7 +46,6 @@ namespace Oxygen.Common.Implements
             }
         }
         public new Channel<T> Pipline { get; set; }
-        public ILifetimeScope LifetimeScope { get; set; }
         public new Func<T, ILifetimeScope, Task> EventHandler { get; set; }
     }
 }

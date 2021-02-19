@@ -1,26 +1,38 @@
 ﻿using Autofac;
-using Dapr.Actors.AspNetCore;
+using Dapr.Actors;
 using Dapr.Actors.Runtime;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Oxygen.Client.ServerSymbol;
 using Oxygen.Common.Implements;
 using Oxygen.Common.Interface;
+using Oxygen.Mesh.Dapr.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Oxygen.Mesh.Dapr
 {
     public class ActorServiceFactory
     {
-        public static void RegisterActorService(object app, ILifetimeScope lifetimeScope)
+        static ILifetimeScope _lifetimeScope;
+        public static void UseActorService(IApplicationBuilder appBuilder, ILifetimeScope lifetimeScope)
         {
-            ((IWebHostBuilder)app).UseActors(actorRuntime => CreateDelegate(actorRuntime, lifetimeScope));
+            if (lifetimeScope != null)
+                _lifetimeScope = _lifetimeScope ?? lifetimeScope;
+            appBuilder.UseRouting().UseEndpoints(endpoints => endpoints.MapActorsHandlers());
         }
-        internal static void CreateDelegate(ActorRuntime actorRuntime, ILifetimeScope lifetimeScope)
+        public static void RegisterActorService(IServiceCollection services)
         {
-            OxygenIocContainer.BuilderIocContainer(lifetimeScope);
+            services.AddActors(options => CreateDelegate(options.Actors));
+        }
+        internal static void CreateDelegate(ActorRegistrationCollection actorRegistrations)
+        {
+            OxygenIocContainer.BuilderIocContainer(_lifetimeScope);
             //获取所有标记为remote的servie
             var remoteservice = ReflectionHelper.GetTypesByAttributes(true, typeof(RemoteServiceAttribute));
             //获取所有标记为remote的method构造具体的delegate
@@ -44,18 +56,12 @@ namespace Oxygen.Mesh.Dapr
                         try
                         {
                             var typeBuilder = ActorProxyBuilder.GetType(x, implType, methods.ToArray());
-                            Func<ActorTypeInformation, ActorService> createFunc = (info) => new ActorService(info, (actorService, actorId) =>
-                            {
-                                OxygenIocContainer.BuilderIocContainer(lifetimeScope);
-                                var obj = Activator.CreateInstance(typeBuilder.proxyType, new object[] { actorService, actorId, lifetimeScope }) as Actor;
-                                lifetimeScope.Resolve<ISubscribeInProcessFactory>().RegisterEventHandler(implType.BaseType.GetProperty("ActorData").PropertyType.FullName, lifetimeScope, typeBuilder.SaveDataFunc);
-                                return obj;
-                            });
-                            typeof(ActorRuntime).GetMethod("RegisterActor").MakeGenericMethod(typeBuilder.proxyType).Invoke(actorRuntime, new object[] { createFunc });
+                            typeof(ActorRegistrationCollection).GetMethod("RegisterActor").MakeGenericMethod(typeBuilder.proxyType).Invoke(actorRegistrations, new object[] { default(Action<ActorRegistration>) });
+                            _lifetimeScope.Resolve<ISubscribeInProcessFactory>().RegisterEventHandler(implType.BaseType.GetProperty("ActorData").PropertyType.FullName, _lifetimeScope, typeBuilder.SaveDataFunc);
                         }
                         catch (Exception e)
                         {
-                            lifetimeScope.Resolve<ILogger>().LogError($"Actor代理创建失败，原因：{e.GetBaseException().Message}");
+                            _lifetimeScope.Resolve<ILogger>().LogError($"Actor代理创建失败，原因：{e.GetBaseException().Message}");
                         }
                     }
                 }
