@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Oxygen.Common;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -29,6 +31,8 @@ namespace Oxygen.Server.Kestrel.Implements
                         listenOptions.Protocols = HttpProtocols.Http1;
                     });
                 });
+            if (DaprConfig.GetCurrent().UseStaticFiles)
+                webHostBuilder.UseContentRoot(Directory.GetCurrentDirectory());
             webHostBuilder.UseStartup<Startup>();
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Oxygen.Common;
 using Oxygen.Common.Interface;
 using Oxygen.Server.Kestrel.Interface;
 using System;
@@ -20,6 +21,8 @@ namespace Oxygen.Server.Kestrel.Implements
         }
         public virtual void Configure(IApplicationBuilder appBuilder, ILifetimeScope lifetimeScope, IServerHandler serverHandler, ISerialize serialize)
         {
+            if (DaprConfig.GetCurrent().UseStaticFiles)
+                appBuilder.UseStaticFiles();
             serverHandler.BuildHandler(appBuilder, serialize);
         }
     }

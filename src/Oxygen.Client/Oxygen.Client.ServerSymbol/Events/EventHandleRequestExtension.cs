@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Oxygen.Server.Kestrel.Implements
+namespace Oxygen.Client.ServerSymbol.Events
 {
     public static class EventHandleRequestExtension
     {
@@ -17,12 +17,19 @@ namespace Oxygen.Server.Kestrel.Implements
         });
         public static T GetData<T>(this EventHandleRequest<T> handleRequest) where T : class
         {
-            if (handleRequest == null || string.IsNullOrEmpty(handleRequest.data))
+            if (handleRequest == null)
                 return default;
-            else
+            var request = handleRequest as TempDataByEventHandleInput<T>;
+            if (request.value != null)
             {
-                return serialize.Value.DeserializesJson<T>(handleRequest.data);
+                return request.value;
             }
+            else if (!string.IsNullOrEmpty(request.data))
+            {
+                request.value = serialize.Value.DeserializesJson<T>(request.data);
+                return request.value;
+            }
+            return default;
         }
     }
 }

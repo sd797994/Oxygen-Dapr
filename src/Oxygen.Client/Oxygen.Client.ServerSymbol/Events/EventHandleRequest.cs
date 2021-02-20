@@ -12,6 +12,6 @@ namespace Oxygen.Client.ServerSymbol.Events
     /// <typeparam name="T"></typeparam>
     public class EventHandleRequest<T> where T : class
     {
-        public string data { get; set; }
+
     }
 }
