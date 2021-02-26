@@ -22,7 +22,11 @@ namespace Server
         {
             return await Task.FromResult(new OutDto() { Word = $"hello {input?.name}" });
         }
-
+        public async Task<OutDto> GetState(InputDto input)
+        {
+            var state = await stateManager.GetState<bool>(new TestStateDto(input.name));
+            return await Task.FromResult(new OutDto() { Word = state.ToString() });
+        }
         public async Task<OutDto> Test()
         {
             return await Task.FromResult(new OutDto() { Word = "noinput" });

@@ -16,6 +16,8 @@ namespace RemoteInterface
         [RemoteFunc(FuncType.Invoke)]
         Task<OutDto> GetUserInfo(InputDto input);
         [RemoteFunc(FuncType.Invoke)]
+        Task<OutDto> GetState(InputDto input);
+        [RemoteFunc(FuncType.Invoke)]
         Task<OutDto> Test();
     }
     [RemoteService("testservice", "helloactor")]

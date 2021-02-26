@@ -31,5 +31,15 @@ namespace Oxygen.Client.ServerSymbol.Events
             }
             return default;
         }
+
+        public static string GetDataJson<T>(this EventHandleRequest<T> handleRequest) where T : class
+        {
+            if (handleRequest == null)
+                return "";
+            var request = handleRequest as TempDataByEventHandleInput<T>;
+            if (request.data != null)
+                return request.data;
+            return "";
+        }
     }
 }

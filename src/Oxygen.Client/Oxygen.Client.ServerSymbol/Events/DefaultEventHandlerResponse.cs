@@ -17,7 +17,7 @@ namespace Oxygen.Client.ServerSymbol.Events
         }
     }
     /// <summary>
-    /// 默认的回调类
+    /// 默认的事件发送回调类
     /// </summary>
     public class DefaultResponse
     {
