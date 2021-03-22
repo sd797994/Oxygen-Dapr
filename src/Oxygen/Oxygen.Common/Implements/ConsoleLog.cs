@@ -12,8 +12,7 @@ namespace Oxygen.Common.Implements
     {
 
         private readonly ILogger _logger;
-        public ConsoleLog(ILogger<ConsoleLoggerProvider> logger
-        )
+        public ConsoleLog(ILogger<ConsoleLog> logger)
         {
             _logger = logger;
         }
@@ -24,6 +23,14 @@ namespace Oxygen.Common.Implements
         public void LogInfo(string message)
         {
             _logger.LogInformation($"{DateTime.Now}|OXYGEN_INFO|{message}");
+        }
+        /// <summary>
+         /// 普通信息
+         /// </summary>
+         /// <param name="message"></param>
+        public void LogWarn(string message)
+        {
+            _logger.LogWarning($"{DateTime.Now}|OXYGEN_WARN|{message}");
         }
         /// <summary>
         /// 异常信息

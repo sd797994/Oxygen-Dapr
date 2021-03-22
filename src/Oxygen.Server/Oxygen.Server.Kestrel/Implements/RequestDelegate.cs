@@ -58,14 +58,14 @@ namespace Oxygen.Server.Kestrel.Implements
                 Tout localCallbackResult = null;
                 if (noInput)
                 {
-                    localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(scope.Resolve<Tobj>(), HttpContextExtension.ContextWapper.Value, NoInputMethodDelegate);
+                    localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(scope, HttpContextExtension.ContextWapper.Value, NoInputMethodDelegate);
                 }
                 else
                 {
                     var messageobj = await messageHandler.ParseMessage<Tin>(ctx, messageType);
                     if (messageobj == default(Tin))
-                        throw new FormatException("参数校验失败");
-                    localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(scope.Resolve<Tobj>(), messageobj, HttpContextExtension.ContextWapper.Value, MethodDelegate);
+                        throw new FormatException($"参数反序列化失败,接口地址{Path},入参类型：{typeof(Tin).Name}");
+                    localCallbackResult = await LocalMethodAopProvider.UsePipelineHandler(scope, messageobj, HttpContextExtension.ContextWapper.Value, MethodDelegate);
                 }
                 if (localCallbackResult != null)
                 {

@@ -52,5 +52,21 @@ namespace Oxygen.Common.Implements
         {
             return Assemblies.Value.Where(a => a.GetTypes().Any(t => t.GetInterfaces().Any() && t.GetInterfaces().Contains(typeof(T)))).FirstOrDefault();
         }
+
+        static string[] SystemAssemblyQualifiedName = new string[] { "Microsoft", "System" };
+        public static bool IsSystemType(Type type, bool checkBaseType = true, bool checkInterfaces = true)
+        {
+            if (SystemAssemblyQualifiedName.Any(x => type.AssemblyQualifiedName.StartsWith(x)))
+                return true;
+            else
+            {
+                if (checkBaseType && type.BaseType != null && type.BaseType != typeof(object) && SystemAssemblyQualifiedName.Any(x => type.BaseType.AssemblyQualifiedName.StartsWith(x)))
+                    return true;
+                if (checkInterfaces && type.GetInterfaces().Any())
+                    if (type.GetInterfaces().Any(i => SystemAssemblyQualifiedName.Any(x => i.AssemblyQualifiedName.StartsWith(x))))
+                        return true;
+            }
+            return false;
+        }
     }
 }

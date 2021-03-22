@@ -7,16 +7,12 @@ using Oxygen.IocModule;
 using Oxygen.Mesh.Dapr;
 using Oxygen.Server.Kestrel.Implements;
 using RemoteInterface;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 
 namespace Client
 {
-    public class Test
-    {
-        public int id { get; set; }
-        public void changeid(int _id) { this.id = _id; }
-    }
     class Program
     {
         static async Task Main(string[] args)

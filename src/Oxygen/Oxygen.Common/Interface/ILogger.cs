@@ -12,6 +12,11 @@ namespace Oxygen.Common.Interface
         /// <param name="message"></param>
         void LogError(string message);
         /// <summary>
+        /// 警告日志
+        /// </summary>
+        /// <param name="message"></param>
+        void LogWarn(string message);
+        /// <summary>
         /// 信息日志
         /// </summary>
         /// <param name="message"></param>

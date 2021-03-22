@@ -29,12 +29,14 @@ namespace Client
         private readonly IEventBus eventBus;
         private readonly IStateManager stateManager;
         private readonly ISerialize serialize;
-        public CallServiceImpl(IServiceProxyFactory serviceProxyFactory, ISerialize serialize, IEventBus eventBus, IStateManager stateManager)
+        private readonly Oxygen.Common.Interface.ILogger logger;
+        public CallServiceImpl(IServiceProxyFactory serviceProxyFactory, ISerialize serialize, IEventBus eventBus, IStateManager stateManager, Oxygen.Common.Interface.ILogger logger)
         {
             this.serviceProxyFactory = serviceProxyFactory;
             this.eventBus = eventBus;
             this.stateManager = stateManager;
             this.serialize = serialize;
+            logger.LogError("abc");
         }
         public async Task<InputDto> RemoteCallTest(InputDto input)
         {

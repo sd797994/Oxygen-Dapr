@@ -12,7 +12,7 @@ namespace Oxygen.Server.Kestrel
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterAssemblyTypes(ThisAssembly)
+            builder.RegisterAssemblyTypes(ThisAssembly).Where(x => !ReflectionHelper.IsSystemType(x))
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
         }

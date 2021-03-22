@@ -30,27 +30,51 @@ namespace Oxygen.ProxyGenerator.Implements
             this.serialize = serialize;
             this.logger = logger;
         }
+        //检测dapr sidecar存活
+        static bool Readyless = false;
+        async Task<bool> ReadylessCheck()
+        {
+            if (!Readyless)
+            {
+                while (true)
+                {
+                    if (!Readyless)
+                        Readyless = (await HttpClient.Value.GetAsync("http://localhost:3500/v1.0/healthz")).IsSuccessStatusCode;
+                    if (Readyless)
+                        break;
+                    else
+                    {
+                        logger.LogWarn($"Dapr尚未准备就绪!");
+                        await Task.Delay(5000);
+                    }
+                }
+            }
+            return Readyless;
+        }
         public async Task<T> SendMessage<T>(string hostName, string serverName, object input, SendType sendType) where T : new()
         {
             T result = default;
-            try
+            if (await ReadylessCheck())
             {
-                var sendMessage = BuildMessage(hostName, serverName, input, sendType);
-                var responseMessage = await HttpClient.Value.SendAsync(sendMessage);
-                if (responseMessage.IsSuccessStatusCode)
+                try
                 {
-                    if (sendType == SendType.publish || sendType == SendType.setState || sendType == SendType.delState)
-                        return new T();//事件和状态操作只要返回200代表发送成功
-                    return ReceiveMessage<T>(sendType, await responseMessage.Content.ReadAsByteArrayAsync());
+                    var sendMessage = BuildMessage(hostName, serverName, input, sendType);
+                    var responseMessage = await HttpClient.Value.SendAsync(sendMessage);
+                    if (responseMessage.IsSuccessStatusCode)
+                    {
+                        if (sendType == SendType.publish || sendType == SendType.setState || sendType == SendType.delState)
+                            return new T();//事件和状态操作只要返回200代表发送成功
+                        return ReceiveMessage<T>(sendType, await responseMessage.Content.ReadAsByteArrayAsync());
+                    }
+                    else
+                    {
+                        logger.LogError($"客户端调用http请求异常,状态码：{responseMessage?.StatusCode},请求内容:{sendMessage}，回调内容:{await responseMessage.Content.ReadAsStringAsync()}");
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    logger.LogError($"客户端调用http请求异常,状态码：{responseMessage?.StatusCode},请求内容:{sendMessage}，回调内容:{await responseMessage.Content.ReadAsStringAsync()}");
+                    logger.LogError($"客户端调用异常：{e.Message},接口地址：{serverName},调用堆栈{e.StackTrace}");
                 }
-            }
-            catch (Exception e)
-            {
-                logger.LogError($"客户端调用异常：{e.Message},接口地址：{serverName},调用堆栈{e.StackTrace}");
             }
             return result;
         }

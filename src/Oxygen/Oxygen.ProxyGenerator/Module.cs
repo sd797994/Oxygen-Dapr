@@ -4,6 +4,8 @@ using Oxygen.ProxyGenerator.Interface;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using Oxygen.Common.Implements;
 
 namespace Oxygen.ProxyGenerator
 {
@@ -11,7 +13,7 @@ namespace Oxygen.ProxyGenerator
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterAssemblyTypes(ThisAssembly)
+            builder.RegisterAssemblyTypes(ThisAssembly).Where(x => !ReflectionHelper.IsSystemType(x))
                 .AsImplementedInterfaces().Where(x =>!(x is IRemoteMessageSenderDelegate))
                 .InstancePerLifetimeScope();
             RemoteProxyGenerator.CreateRemoteProxyAndRegisterInIocContainer(builder);

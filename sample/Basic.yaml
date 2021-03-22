@@ -23,6 +23,8 @@ spec:
           env:
             - name: POSTGRES_PASSWORD
               value: "Mytestpwd#123"
+            - name: TZ
+              value: "Asia/Shanghai"
 ---
 apiVersion: v1
 kind: Service
@@ -62,6 +64,9 @@ spec:
           ports:
             - containerPort: 6379
               name: web
+          env:
+            - name: TZ
+              value: "Asia/Shanghai"
 ---
 apiVersion: v1
 kind: Service
@@ -84,6 +89,7 @@ metadata:
   namespace: default
 spec:
   type: state.redis
+  version: v1
   metadata:
   - name: actorStateStore
     value: "true"
@@ -99,6 +105,7 @@ metadata:
   namespace: default
 spec:
   type: pubsub.redis
+  version: v1
   metadata:
   - name: redisHost
     value: redis.infrastructure.svc.cluster.local:6379

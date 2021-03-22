@@ -1,4 +1,5 @@
-﻿using Oxygen.Common.Implements;
+﻿using Autofac;
+using Oxygen.Common.Implements;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -40,7 +41,7 @@ namespace Oxygen.ProxyGenerator.Implements
         /// <param name="param"></param>
         /// <param name="method"></param>
         /// <returns></returns>
-        public static async Task<Tout> UsePipelineHandler<Tobj, Tin, Tout>(Tobj obj, Tin param, OxygenHttpContextWapper wapper, Func<Tobj, Tin, Task<Tout>> method) where Tin : new() where Tout : class
+        public static async Task<Tout> UsePipelineHandler<Tobj, Tin, Tout>(ILifetimeScope scope, Tin param, OxygenHttpContextWapper wapper, Func<Tobj, Tin, Task<Tout>> method) where Tin : new() where Tout : class
         {
             try
             {
@@ -49,7 +50,7 @@ namespace Oxygen.ProxyGenerator.Implements
                     ContextRegister(wapper);
                 if (BeforeFunc != null)
                     await BeforeFunc(param, wapper);
-                result = await method(obj, param);
+                result = await method(scope.Resolve<Tobj>(), param);
                 if (AfterFunc != null)
                     await AfterFunc(result);
                 return result;
@@ -61,7 +62,7 @@ namespace Oxygen.ProxyGenerator.Implements
             }
             return default;
         }
-        public static async Task<Tout> UsePipelineHandler<Tobj, Tout>(Tobj obj, OxygenHttpContextWapper wapper, Func<Tobj, Task<Tout>> method) where Tout : class
+        public static async Task<Tout> UsePipelineHandler<Tobj, Tout>(ILifetimeScope scope, OxygenHttpContextWapper wapper, Func<Tobj, Task<Tout>> method) where Tout : class
         {
             try
             {
@@ -70,7 +71,7 @@ namespace Oxygen.ProxyGenerator.Implements
                     ContextRegister(wapper);
                 if (BeforeFunc != null)
                     await BeforeFunc(null, wapper);
-                result = await method(obj);
+                result = await method(scope.Resolve<Tobj>());
                 if (AfterFunc != null)
                     await AfterFunc(result);
                 return result;
