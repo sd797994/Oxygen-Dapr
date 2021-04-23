@@ -119,7 +119,7 @@ namespace Client
             await Task.CompletedTask;
         }
     }
-    public class MyActor : ActorStateModel
+    public record MyActor : ActorStateModel
     {
         public int Index { get; set; }
         public override bool AutoSave { get; set; }
@@ -130,13 +130,12 @@ namespace Client
         Task<MyActor> GetData();
         Task SaveData(MyActor actor);
     }
-    public class HelloRepository : IHelloRepository, IDisposable
+    public class HelloRepository : IHelloRepository
     {
         public Guid? Id { get; set; }
         public HelloRepository()
         {
             Id = Id ?? Guid.NewGuid();
-            Console.WriteLine("模拟ef上下文实例化");
         }
         public async Task SaveData(MyActor actor)
         {
@@ -147,11 +146,6 @@ namespace Client
         public async Task<MyActor> GetData()
         {
             return new MyActor() { Index = 0, AutoSave = true };
-        }
-
-        public void Dispose()
-        {
-            Console.WriteLine("模拟ef上下文释放");
         }
     }
 }

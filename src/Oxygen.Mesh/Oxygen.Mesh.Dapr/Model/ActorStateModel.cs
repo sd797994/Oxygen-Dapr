@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Oxygen.Mesh.Dapr.Model
 {
-    public abstract class ActorStateModel
+    public abstract record ActorStateModel
     {
         public abstract bool AutoSave { get; set; }
         public abstract int ReminderSeconds { get; }
@@ -17,9 +17,10 @@ namespace Oxygen.Mesh.Dapr.Model
         }
         private int oldVersion;
         private int newVersion;
-        internal void UpdateVersion()
+        internal void UpdateVersion(ActorStateModel oldData)
         {
-            Interlocked.Increment(ref newVersion);
+            if (oldData != this) //对比两个record如果没有变化，则忽略不增加版本
+                Interlocked.Increment(ref newVersion);
         }
         internal bool CheckVersionChange(bool updateversion = true)
         {

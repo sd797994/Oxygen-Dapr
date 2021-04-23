@@ -16,6 +16,7 @@ namespace Oxygen.Mesh.Dapr
     public class BasicActor<T> : Actor where T : ActorStateModel
     {
         public T ActorData { get; set; }
+        public T RecordActorData { get; set; }
         private readonly IInProcessEventBus eventBus;
         public string Topic;
         public bool registerTimerState;
@@ -62,6 +63,14 @@ namespace Oxygen.Mesh.Dapr
         {
             await Task.CompletedTask;
         }
+        protected override async Task OnPreActorMethodAsync(ActorMethodContext actorMethodContext)
+        {
+            if (ActorData != null && ActorData.AutoSave && actorMethodContext.CallType == ActorCallType.ActorInterfaceMethod)
+            {
+                RecordActorData = ActorData with { };
+            }
+            await Task.CompletedTask;
+        }
         /// <summary>
         /// actor业务处理后置事件
         /// </summary>
@@ -73,7 +82,7 @@ namespace Oxygen.Mesh.Dapr
             {
                 if (actorMethodContext.CallType == ActorCallType.ActorInterfaceMethod)
                 {
-                    ActorData.UpdateVersion();//方法调用后强制升级一次版本
+                    ActorData.UpdateVersion(RecordActorData);//方法调用后强制升级一次版本
                     if (ActorData.IsDelete)
                     {
                         if (await StateManager.TryRemoveStateAsync("ActorData"))
@@ -89,6 +98,11 @@ namespace Oxygen.Mesh.Dapr
                         {
                             //如果开启自动保存，但是没有设置定期更新时间，则立即触发一次保存
                             await SendEvent<T, ActorStateModel>(ActorData);
+                        }
+                        else if (!registerTimerState) //当ReminderSeconds>0未注册Timer时，需要重新注册timer
+                        {
+                            registerTimerState = true;
+                            await RegisterTimer(ActorData.ReminderSeconds);
                         }
                     }
                 }
