@@ -7,6 +7,7 @@ namespace Oxygen.Server.Kestrel.Interface
     public enum MessageType
     {
         Json = 0,
-        MessagePack = 1
+        MessagePack = 1,
+        Html = 2
     }
 }

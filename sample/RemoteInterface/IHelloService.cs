@@ -19,6 +19,8 @@ namespace RemoteInterface
         Task<OutDto> GetState(InputDto input);
         [RemoteFunc(FuncType.Invoke)]
         Task<OutDto> Test();
+        [RemoteFunc]
+        Task<string> GetHtml();
     }
     [RemoteService("testservice", "helloactor")]
     public interface IHelloActorService : IActorService

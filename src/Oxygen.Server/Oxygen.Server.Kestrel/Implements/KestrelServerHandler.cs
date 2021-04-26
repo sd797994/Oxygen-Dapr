@@ -31,17 +31,14 @@ namespace Oxygen.Server.Kestrel.Implements
         {
             RequestDelegateFactory.CreateDelegate(logger, messageHandler, out List<SubscribeModel> subDelegate).ForEach(x =>
             {
-                app.Map(x.Path, handle =>
-                {
-                    handle.MapWhen(p => p.Request.Method.Equals("POST"), builder =>
-                    {
-                        builder.Run(async ctx =>
-                        {
-                            using var lifetimescope = Container.BeginLifetimeScope();//每次从静态根容器引用构造一个独立的生命周期范围
-                            await x.Excute(ctx, lifetimescope);
-                        });
-                    });
-                });
+                app.Map(x.Path, builder =>
+                   {
+                       builder.Run(async ctx =>
+                       {
+                           using var lifetimescope = Container.BeginLifetimeScope();//每次从静态根容器引用构造一个独立的生命周期范围
+                           await x.Excute(ctx, lifetimescope);
+                       });
+                   });
             });
             if (subDelegate.Any())
             {

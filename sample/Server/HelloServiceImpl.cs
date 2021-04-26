@@ -31,5 +31,10 @@ namespace Server
         {
             return await Task.FromResult(new OutDto() { Word = "noinput" });
         }
+
+        public async Task<string> GetHtml()
+        {
+            return await Task.FromResult("<h1>hello</h1>");
+        }
     }
 }

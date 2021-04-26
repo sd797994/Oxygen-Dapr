@@ -24,6 +24,8 @@ namespace Oxygen.Server.Kestrel.Implements
         {
             if (messageType == MessageType.Json)
                 return Encoding.UTF8.GetBytes(serialize.SerializesJson(data));
+            else if (messageType == MessageType.Html)
+                return Encoding.UTF8.GetBytes(data as string);
             else if (messageType == MessageType.MessagePack)
                 return serialize.Serializes(data);
             else

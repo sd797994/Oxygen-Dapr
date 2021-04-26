@@ -36,7 +36,6 @@ namespace Client
             this.eventBus = eventBus;
             this.stateManager = stateManager;
             this.serialize = serialize;
-            logger.LogError("abc");
         }
         public async Task<InputDto> RemoteCallTest(InputDto input)
         {

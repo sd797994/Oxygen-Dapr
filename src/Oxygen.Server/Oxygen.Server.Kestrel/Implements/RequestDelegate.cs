@@ -54,6 +54,11 @@ namespace Oxygen.Server.Kestrel.Implements
                     ctx.Response.ContentType = "application/x-msgpack";
                     messageType = MessageType.MessagePack;
                 }
+                if (ctx.Request.ContentType == null)
+                {
+                    ctx.Response.ContentType = "text/html";
+                    messageType = MessageType.Html;
+                }
                 HttpContextExtension.ContextWapper.Value = new OxygenHttpContextWapper(Path, scope, ctx.Request.Headers.GetHeaderDictionary(), ctx.Request.Cookies.GetCookieDictionary());
                 Tout localCallbackResult = null;
                 if (noInput)
