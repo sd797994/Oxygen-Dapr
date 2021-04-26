@@ -36,6 +36,8 @@ namespace Oxygen.ProxyGenerator.Implements
             RemoteRouters = new List<RemoteRouter>();
             remoteMethods.ToList().ForEach(x =>
             {
+                if (x.ReturnParameter.ParameterType.GenericTypeArguments[0] == typeof(string))
+                    throw new Exception($"由于string类型不包含无参构造函数,无法为返回类型为Task<string>的方法创建代理,请改用Task<dynamic>,接口:{x.DeclaringType.Name},方法名:{x.Name}");
                 var funcAttr = ReflectionHelper.GetAttributeProperyiesByMethodInfo<RemoteFuncAttribute>(x);
                 //生成服务调用代理
                 if (funcAttr.FuncType == FuncType.Actor || funcAttr.FuncType == FuncType.Invoke)
@@ -47,7 +49,7 @@ namespace Oxygen.ProxyGenerator.Implements
                         RouterName = funcAttr.FuncType == FuncType.Actor ? $"/{x.Name}" : $"/{routerName}/{x.Name}".ToLower(),
                         InputType = x.GetParameters().FirstOrDefault()?.ParameterType,
                         SendType = funcAttr.FuncType == FuncType.Invoke ? SendType.invoke : funcAttr.FuncType == FuncType.Actor ? SendType.actors : SendType.invoke,
-                        MethodInfo = typeof(IRemoteMessageSender).GetMethod("SendMessage").MakeGenericMethod(x.ReturnParameter.ParameterType.GenericTypeArguments[0] == typeof(string) ? typeof(object) : x.ReturnParameter.ParameterType.GenericTypeArguments[0]),
+                        MethodInfo = typeof(IRemoteMessageSender).GetMethod("SendMessage").MakeGenericMethod(x.ReturnParameter.ParameterType.GenericTypeArguments[0]),
                     });
                 }
             });

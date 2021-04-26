@@ -40,6 +40,7 @@ namespace Client
         public async Task<InputDto> RemoteCallTest(InputDto input)
         {
             var helloService = serviceProxyFactory.CreateProxy<IHelloService>();
+            var test = await helloService.GetHtml();
             var helloactorService = serviceProxyFactory.CreateActorProxy<IHelloActorService>();
             await stateManager.SetState(new TestStateDto("mykey", true));
             var getState = await stateManager.GetState<bool>(new TestStateDto("mykey"));
@@ -89,7 +90,13 @@ namespace Client
             };
         }
     }
-
+    public class Test
+    {
+        public async Task<object> Get<T>() where T : new()
+        {
+            return default;
+        }
+    }
     public class HelloActorService : BaseActorService<MyActor>, IHelloActorService
     {
         private readonly ILogger<HelloActorService> logger;
