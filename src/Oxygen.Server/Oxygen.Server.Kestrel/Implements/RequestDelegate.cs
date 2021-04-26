@@ -71,10 +71,6 @@ namespace Oxygen.Server.Kestrel.Implements
                 {
                     result = messageHandler.BuildMessage(localCallbackResult, messageType);
                 }
-                else
-                {
-                    ctx.Response.StatusCode = 404;
-                }
             }
             catch (Exception e)
             {
