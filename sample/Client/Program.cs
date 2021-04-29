@@ -22,11 +22,12 @@ namespace Client
         static IHostBuilder CreateDefaultHost(string[] args) => new HostBuilder()
             .ConfigureWebHostDefaults(webhostbuilder => {
                 //注册成为oxygen服务节点
-               webhostbuilder.StartOxygenServer<OxygenActorStartup>((config) => {
+                webhostbuilder.StartOxygenServer<OxygenActorStartup>((config) => {
                     config.Port = 80;
                     config.PubSubCompentName = "pubsub";
                     config.StateStoreCompentName = "statestore";
                     config.TracingHeaders = "Authentication";
+                    config.UseCors = true;
                 });
             })
             .ConfigureContainer<ContainerBuilder>(builder =>
