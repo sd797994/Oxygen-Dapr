@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +15,14 @@ namespace Oxygen.Common.Implements
         public ILifetimeScope RequestService { get; set; }
         public Dictionary<string, string> Headers { get; set; }
         public Dictionary<string, string> Cookies { get; set; }
-        public OxygenHttpContextWapper(string routePath, ILifetimeScope requestService, Dictionary<string, string> headers, Dictionary<string, string> cookies)
+        public HttpResponse HttpResponse { get; set; }
+        public OxygenHttpContextWapper(string routePath, ILifetimeScope requestService, Dictionary<string, string> headers, Dictionary<string, string> cookies, HttpResponse httpResponse)
         {
             RoutePath = routePath;
             Headers = headers;
             Cookies = cookies;
             RequestService = requestService;
+            HttpResponse = httpResponse;
         }
     }
 }

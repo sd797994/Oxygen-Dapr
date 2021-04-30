@@ -22,7 +22,7 @@ namespace Oxygen.Server.Kestrel.Implements
         {
             if (DaprConfig.GetCurrent().UseStaticFiles)
                 appBuilder.UseStaticFiles();
-            if(DaprConfig.GetCurrent().UseCors)
+            if (DaprConfig.GetCurrent().UseCors)
             {
                 appBuilder.UseCors(x => x.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
             }

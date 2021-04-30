@@ -34,7 +34,9 @@ namespace Server
 
         public async Task<dynamic> GetHtml()
         {
-            return await Task.FromResult("<h1>hello</h1>");
+            HttpContextCurrent.GetCurrent().HttpResponse.Cookies.Append("aaa", "bbb");
+            HttpContextCurrent.GetCurrent().HttpResponse.Redirect("http://www.baidu.com");
+            return await Task.FromResult("");
         }
     }
 }
