@@ -38,14 +38,22 @@ namespace Oxygen.ProxyGenerator.Implements
             {
                 while (true)
                 {
-                    if (!Readyless)
-                        Readyless = (await HttpClient.Value.GetAsync("http://localhost:3500/v1.0/healthz")).IsSuccessStatusCode;
-                    if (Readyless)
-                        break;
-                    else
+                    try
                     {
-                        logger.LogWarn($"Dapr尚未准备就绪!");
-                        await Task.Delay(5000);
+                        if (!Readyless)
+                            Readyless = (await HttpClient.Value.GetAsync("http://localhost:3500/v1.0/healthz")).IsSuccessStatusCode;
+                        if (Readyless)
+                            break;
+                        else
+                        {
+                            logger.LogWarn($"Dapr尚未准备就绪!");
+                            await Task.Delay(100);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogWarn($"Dapr尚未准备就绪,{e.Message}");
+                        await Task.Delay(100);
                     }
                 }
             }
