@@ -32,7 +32,7 @@ namespace Oxygen.Server.Kestrel.Implements
                     });
                 });
             if (DaprConfig.GetCurrent().UseStaticFiles)
-                webHostBuilder.UseContentRoot(Directory.GetCurrentDirectory());
+                webHostBuilder.UseContentRoot(Directory.GetCurrentDirectory()).UseWebRoot("wwwroot");
             webHostBuilder.UseStartup<Startup>();
         }
     }
