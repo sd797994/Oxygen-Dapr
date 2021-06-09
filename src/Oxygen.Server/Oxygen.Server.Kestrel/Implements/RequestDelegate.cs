@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Unicode;
@@ -80,7 +81,7 @@ namespace Oxygen.Server.Kestrel.Implements
             catch (Exception e)
             {
                 logger.LogError($"服务端消息处理异常: {e.GetBaseException()?.Message ?? e.Message}");
-                ctx.Response.StatusCode = 502;
+                ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 if (e is FormatException)
                     await ctx.Response.Body.WriteAsync(Encoding.UTF8.GetBytes(e.Message));
             }
