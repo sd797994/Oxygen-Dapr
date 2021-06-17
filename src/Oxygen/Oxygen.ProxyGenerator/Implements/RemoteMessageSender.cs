@@ -155,10 +155,10 @@ namespace Oxygen.ProxyGenerator.Implements
             {
                 foreach(var headername in DaprConfig.GetCurrent().TracingHeaders.Split(","))
                 {
-                    foreach(var currentHeader in HttpContextExtension.ContextWapper.Value.Headers)
+                    foreach(var currentHeader in HttpContextExtension.ContextWapper.Value.HttpContext.Request.Headers)
                     {
                         if (currentHeader.Key == headername)
-                            httpRequest.Headers.Add(headername, currentHeader.Value);
+                            httpRequest.Headers.Add(headername, currentHeader.Value.ToArray());
                     }
                 }
             }

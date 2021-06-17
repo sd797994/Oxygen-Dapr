@@ -13,16 +13,12 @@ namespace Oxygen.Common.Implements
     {
         public string RoutePath { get; set; }
         public ILifetimeScope RequestService { get; set; }
-        public Dictionary<string, string> Headers { get; set; }
-        public Dictionary<string, string> Cookies { get; set; }
-        public HttpResponse HttpResponse { get; set; }
-        public OxygenHttpContextWapper(string routePath, ILifetimeScope requestService, Dictionary<string, string> headers, Dictionary<string, string> cookies, HttpResponse httpResponse)
+        public HttpContext HttpContext { get; set; }
+        public OxygenHttpContextWapper(string routePath, ILifetimeScope requestService, HttpContext httpContext)
         {
             RoutePath = routePath;
-            Headers = headers;
-            Cookies = cookies;
             RequestService = requestService;
-            HttpResponse = httpResponse;
+            HttpContext = httpContext;
         }
     }
 }

@@ -1,36 +1,30 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
-using Oxygen.Common.Interface;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
+﻿using System;
 
 namespace Oxygen.Common.Implements
 {
     internal class ConsoleLog : Interface.ILogger
     {
-
-        private readonly ILogger _logger;
-        public ConsoleLog(ILogger<ConsoleLog> logger)
-        {
-            _logger = logger;
-        }
         /// <summary>
         /// 普通信息
         /// </summary>
         /// <param name="message"></param>
         public void LogInfo(string message)
         {
-            _logger.LogInformation($"{DateTime.Now}|OXYGEN_INFO|{message}");
+            var color = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"{DateTime.Now}|OXYGEN_INFO|{message}");
+            Console.ForegroundColor = color;
         }
         /// <summary>
-         /// 普通信息
+         /// 告警信息
          /// </summary>
          /// <param name="message"></param>
         public void LogWarn(string message)
         {
-            _logger.LogWarning($"{DateTime.Now}|OXYGEN_WARN|{message}");
+            var color = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"{DateTime.Now}|OXYGEN_WARN|{message}");
+            Console.ForegroundColor = color;
         }
         /// <summary>
         /// 异常信息
@@ -38,7 +32,10 @@ namespace Oxygen.Common.Implements
         /// <param name="message"></param>
         public void LogError(string message)
         {
-            _logger.LogError($"{DateTime.Now}|OXYGEN_ERROR|{message}");
+            var color = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"{DateTime.Now}|OXYGEN_ERROR|{message}");
+            Console.ForegroundColor = color;
         }
     }
 }
