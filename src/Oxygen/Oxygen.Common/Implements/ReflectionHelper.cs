@@ -15,6 +15,10 @@ namespace Oxygen.Common.Implements
         {
             return Assemblies.Value.SelectMany(a => a.GetTypes().Where(t => (isInterface ? t.IsInterface : !t.IsInterface) && t.GetCustomAttributes().Select(x => x.GetType()).Intersect(attributes).Count() == attributes.Count())).ToArray();
         }
+        public static IEnumerable<Type> GetTypesByAttributes(Type type, bool isInterface, params Type[] attributes)
+        {
+            return type.Assembly.GetTypes().Where(t => (isInterface ? t.IsInterface : !t.IsInterface) && t.GetCustomAttributes().Select(x => x.GetType()).Intersect(attributes).Count() == attributes.Count()).ToArray();
+        }
         public static T GetAttributeProperyiesByType<T>(Type type) where T : Attribute
         {
             return type.GetCustomAttributes().FirstOrDefault(x => x is T) as T;
@@ -26,6 +30,10 @@ namespace Oxygen.Common.Implements
         public static Type GetTypeByInterface(Type interfaceType)
         {
             return Assemblies.Value.SelectMany(a => a.GetTypes().Where(t => t.GetInterfaces().Any() && t.GetInterfaces().Contains(interfaceType))).FirstOrDefault();
+        }
+        public static Type GetTypeByInterface(Type implType, Type interfaceType)
+        {
+            return implType.Assembly.GetTypes().Where(t => t.GetInterfaces().Any() && t.GetInterfaces().Contains(interfaceType)).FirstOrDefault();
         }
         public static IEnumerable<Type> GetImplTypeByInterface<T>() where T : class
         {
@@ -51,6 +59,17 @@ namespace Oxygen.Common.Implements
         public static Assembly GetAssemblyByInterface<T>()
         {
             return Assemblies.Value.Where(a => a.GetTypes().Any(t => t.GetInterfaces().Any() && t.GetInterfaces().Contains(typeof(T)))).FirstOrDefault();
+        }
+        public static IEnumerable<Type> GetTypesByNameSpace(string name)
+        {
+            foreach (var item in Assemblies.Value)
+            {
+                foreach (var type in item.GetTypes())
+                {
+                    if (type.Namespace == name && !type.IsInterface && type.MemberType == MemberTypes.TypeInfo)
+                        yield return type;
+                }
+            }
         }
 
         static string[] SystemAssemblyQualifiedName = new string[] { "Microsoft", "System" };

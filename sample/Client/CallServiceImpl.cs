@@ -29,8 +29,7 @@ namespace Client
         private readonly IEventBus eventBus;
         private readonly IStateManager stateManager;
         private readonly ISerialize serialize;
-        private readonly Oxygen.Common.Interface.ILogger logger;
-        public CallServiceImpl(IServiceProxyFactory serviceProxyFactory, ISerialize serialize, IEventBus eventBus, IStateManager stateManager, Oxygen.Common.Interface.ILogger logger)
+        public CallServiceImpl(IServiceProxyFactory serviceProxyFactory, ISerialize serialize, IEventBus eventBus, IStateManager stateManager)
         {
             this.serviceProxyFactory = serviceProxyFactory;
             this.eventBus = eventBus;
@@ -80,78 +79,15 @@ namespace Client
             });
             _event.WaitOne();
             _sw.Stop();
-            return new MultipleTestOutput()
+            return await Task.FromResult(new MultipleTestOutput()
             {
                 AllTimes = input.Times,
                 SuccTimes = succ,
                 FailTimes = fail,
                 CustTimes = _sw.ElapsedMilliseconds,
                 Detail = string.Join(",", times.Where(x => x > 100).ToList())
-            };
+            });
         }
     }
-    public class Test
-    {
-        public async Task<object> Get<T>() where T : new()
-        {
-            return default;
-        }
-    }
-    public class HelloActorService : BaseActorService<MyActor>, IHelloActorService
-    {
-        private readonly ILogger<HelloActorService> logger;
-        private readonly IStateManager stateManager;
-        private readonly IHelloRepository helloRepository;
-        public HelloActorService(ILogger<HelloActorService> logger, IStateManager stateManager, IHelloRepository helloRepository)
-        {
-            this.logger = logger;
-            this.stateManager = stateManager;
-            this.helloRepository = helloRepository;
-        }
-        public async Task<OutDto> GetUserInfoByActor(ActorInputDto input)
-        {
-            if (ActorData == null)
-                ActorData = await helloRepository.GetData();
-            ActorData.Index++;
-            if (ActorData.Index == 10)
-                ActorData.DeleteModel();
-            return await Task.FromResult(new OutDto() { Word = $"hello {input.Name},your id is {ActorData.Index}" });
-        }
 
-        public override async Task SaveData(MyActor data, ILifetimeScope scope)
-        {
-            if (data != null)
-                await helloRepository.SaveData(data);
-            await Task.CompletedTask;
-        }
-    }
-    public record MyActor : ActorStateModel
-    {
-        public int Index { get; set; }
-        public override bool AutoSave { get; set; }
-        public override int ReminderSeconds { get => 1; }
-    }
-    public interface IHelloRepository
-    {
-        Task<MyActor> GetData();
-        Task SaveData(MyActor actor);
-    }
-    public class HelloRepository : IHelloRepository
-    {
-        public Guid? Id { get; set; }
-        public HelloRepository()
-        {
-            Id = Id ?? Guid.NewGuid();
-        }
-        public async Task SaveData(MyActor actor)
-        {
-            Console.WriteLine($"仓储实例ID：{Id}，持久化对象：{actor?.Index}");
-            await Task.CompletedTask;
-        }
-
-        public async Task<MyActor> GetData()
-        {
-            return new MyActor() { Index = 0, AutoSave = true };
-        }
-    }
 }

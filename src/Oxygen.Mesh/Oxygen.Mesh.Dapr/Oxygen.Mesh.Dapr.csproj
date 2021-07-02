@@ -11,5 +11,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Oxygen.Server\Oxygen.Server.Kestrel\Oxygen.Server.Kestrel.csproj" />
   </ItemGroup>
-
 </Project>

@@ -20,6 +20,7 @@ namespace Oxygen.Mesh.Dapr
     public class ActorServiceFactory
     {
         static ILifetimeScope _lifetimeScope;
+        static MethodInfo daprRegisterMethodInfo = typeof(ActorRegistrationCollection).GetMethod("RegisterActor");
         public static void UseActorService(IApplicationBuilder appBuilder, ILifetimeScope lifetimeScope)
         {
             if (lifetimeScope != null)
@@ -32,40 +33,12 @@ namespace Oxygen.Mesh.Dapr
         }
         internal static void CreateDelegate(ActorRegistrationCollection actorRegistrations)
         {
-            OxygenIocContainer.BuilderIocContainer(_lifetimeScope);
-            //获取所有标记为remote的servie
-            var remoteservice = ReflectionHelper.GetTypesByAttributes(true, typeof(RemoteServiceAttribute));
-            //获取所有标记为remote的method构造具体的delegate
-            remoteservice.ToList().ForEach(x =>
+            foreach (var item in ReflectionHelper.GetTypesByNameSpace("Oxygen.Mesh.Dapr.ProxyImpl"))
             {
-                var implType = ReflectionHelper.GetTypeByInterface(x);
-                if (implType != null)
-                {
-                    var methods = new List<MethodInfo>();
-                    ReflectionHelper.GetMethodByFilter(x, typeof(RemoteFuncAttribute)).ToList().ForEach(y =>
-                    {
-                        var funcAttr = ReflectionHelper.GetAttributeProperyiesByMethodInfo<RemoteFuncAttribute>(y);
-                        //生成服务调用代理
-                        if (funcAttr.FuncType == FuncType.Actor)
-                        {
-                            methods.Add(y);
-                        }
-                    });
-                    if (methods.Any())
-                    {
-                        try
-                        {
-                            var typeBuilder = ActorProxyBuilder.GetType(x, implType, methods.ToArray());
-                            typeof(ActorRegistrationCollection).GetMethod("RegisterActor").MakeGenericMethod(typeBuilder.proxyType).Invoke(actorRegistrations, new object[] { default(Action<ActorRegistration>) });
-                            _lifetimeScope.Resolve<ISubscribeInProcessFactory>().RegisterEventHandler(implType.BaseType.GetProperty("ActorData").PropertyType.FullName, _lifetimeScope, typeBuilder.SaveDataFunc);
-                        }
-                        catch (Exception e)
-                        {
-                            _lifetimeScope.Resolve<ILogger>().LogError($"Actor代理创建失败，原因：{e.GetBaseException().Message}");
-                        }
-                    }
-                }
-            });
+                daprRegisterMethodInfo.MakeGenericMethod(item).Invoke(actorRegistrations, new object[] { default(Action<ActorRegistration>) });
+                dynamic func = item.GetField("ActorServiceSaveData").GetValue(null);
+                _lifetimeScope.Resolve<ISubscribeInProcessFactory>().RegisterEventHandler(item.BaseType.GetProperty("ActorData").PropertyType.FullName, _lifetimeScope, func);
+            }
         }
     }
 }

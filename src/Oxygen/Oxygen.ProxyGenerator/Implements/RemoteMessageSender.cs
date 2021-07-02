@@ -98,17 +98,9 @@ namespace Oxygen.ProxyGenerator.Implements
                 case SendType.invoke:
                     url = $"{basepath}v1.0/invoke/{host}/method{url}";
                     request = new HttpRequestMessage(HttpMethod.Post, url) { Version = new Version(1, 1) };
-                    if (data != null)
-                    {
-                        var bytedata = serialize.Serializes(data);
-                        request.Content = new ByteArrayContent(bytedata);
-                        request.Content.Headers.ContentType = new MediaTypeHeaderValue($"application/x-msgpack");
-                    }
-                    else
-                    {
-                        request.Content = new ByteArrayContent(new byte[0]);
-                        request.Content.Headers.ContentType = new MediaTypeHeaderValue($"application/x-msgpack");
-                    }
+                    var bytedata = serialize.Serializes(data ?? new byte[0]);
+                    request.Content = new ByteArrayContent(bytedata);
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue($"application/x-msgpack");
                     AddTraceHeader(request);
                     return request;
                 case SendType.publish:

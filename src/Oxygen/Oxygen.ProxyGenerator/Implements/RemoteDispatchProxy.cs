@@ -63,7 +63,7 @@ namespace Oxygen.ProxyGenerator.Implements
             internal string Key { get; set; }
             internal string HostName { get; set; }
             internal string RouterName { get; set; }
-            internal Type? InputType { get; set; }
+            internal Type InputType { get; set; }
             internal MethodInfo MethodInfo { get; set; }
             internal SendType SendType { get; set; }
             internal IRemoteMessageSenderDelegate SenderDelegate { get; set; }
