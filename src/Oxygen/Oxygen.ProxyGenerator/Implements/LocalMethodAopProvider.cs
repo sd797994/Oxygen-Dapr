@@ -59,8 +59,9 @@ namespace Oxygen.ProxyGenerator.Implements
             {
                 if (ExceptionFunc != null)
                     return await ExceptionFunc(e);
+                else
+                    throw;
             }
-            return default;
         }
         public static async Task<Tout> UsePipelineHandler<Tobj, Tout>(ILifetimeScope scope, OxygenHttpContextWapper wapper, Func<Tobj, Task<Tout>> method) where Tout : class
         {
@@ -80,8 +81,9 @@ namespace Oxygen.ProxyGenerator.Implements
             {
                 if (ExceptionFunc != null)
                     return await ExceptionFunc(e);
+                else
+                    throw;
             }
-            return default;
         }
     }
 }
