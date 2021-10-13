@@ -28,7 +28,7 @@ namespace Oxygen.Client.ServerProxyFactory.Implements
         }
         public async Task<DefaultResponse> SetState(StateStore input)
         {
-            return await messageSender.SendMessage<DefaultResponse>(DaprConfig.GetCurrent().StateStoreCompentName, "", new[] { new { key = input.Key, value = input.Data, metadata = new { ttlInSeconds = input.ttlInSeconds == null || input.ttlInSeconds <= 0 ? "-1" : $"{input.ttlInSeconds}" } } }, SendType.setState);
+            return await messageSender.SendMessage<DefaultResponse>(DaprConfig.GetCurrent().StateStoreCompentName, "", new[] { new { key = input.Key, value = input.Data, metadata = new { ttlInSeconds = input.TtlInSeconds <= 0 ? "-1" : $"{input.TtlInSeconds}" } } }, SendType.setState);
         }
     }
 }

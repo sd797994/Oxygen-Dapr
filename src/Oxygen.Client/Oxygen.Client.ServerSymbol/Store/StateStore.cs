@@ -11,6 +11,6 @@ namespace Oxygen.Client.ServerSymbol.Store
         public abstract string Key { get; set; }
         public abstract object Data { get; set; }
 
-        public abstract int? ttlInSeconds { get; set; }
+        public int TtlInSeconds { get; set; }
     }
 }
