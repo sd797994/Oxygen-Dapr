@@ -39,7 +39,7 @@ spec:
       volumes:
         - name: v1
           hostPath:
-            path: /run/desktop/mnt/host/e/dotnet_project/Oxygen-Dapr/sample/Client/bin/Debug/net5.0
+            path: /run/desktop/mnt/host/e/dotnet_project/Oxygen-Dapr/sample/Client/bin/Debug/net6.0
         - name: v2
           hostPath:
             path: /run/desktop/mnt/host/c/Users/Administrator/vsdbg/vs2017u5
@@ -84,7 +84,7 @@ spec:
       volumes:
         - name: v1
           hostPath:
-            path: /run/desktop/mnt/host/e/dotnet_project/Oxygen-Dapr/sample/Server/bin/Debug/net5.0
+            path: /run/desktop/mnt/host/e/dotnet_project/Oxygen-Dapr/sample/Server/bin/Debug/net6.0
         - name: v2
           hostPath:
             path: /run/desktop/mnt/host/c/Users/Administrator/vsdbg/vs2017u5

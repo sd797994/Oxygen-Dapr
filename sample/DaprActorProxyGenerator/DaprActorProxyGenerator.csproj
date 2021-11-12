@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
   </PropertyGroup>
   <ItemGroup>
     <!--必须引入CodeAnalysis-->
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
     <!--引入Oxygen和Autofac用于编译时在Target指向nuget包位置查询dll-->
-    <PackageReference Include="Oxygen-Dapr" Version="0.2.5" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="Autofac" Version="6.3.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Oxygen-Dapr" Version="0.2.7" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ClienActorSample\ClienActorSample.csproj" />
@@ -18,11 +18,11 @@
   <Target Name="GetDependencyTargetPaths">
     <ItemGroup>
       <!--在编译代码时使用到的类型路径中涉及的dll都必须以下面的方式引入到当前文档中，否则编译不通过-->
-      <TargetPathWithTargetPlatformMoniker Include="..\ClienActorSample\bin\Release\net5.0\ClienActorSample.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="..\RemoteInterface\bin\Release\net5.0\RemoteInterface.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGOxygen-Dapr)\lib\net5.0\Oxygen.Mesh.Dapr.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGOxygen-Dapr)\lib\net5.0\Oxygen.Client.ServerSymbol.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGOxygen-Dapr)\lib\net5.0\Oxygen.Common.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="..\ClienActorSample\bin\Release\net6.0\ClienActorSample.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="..\RemoteInterface\bin\Release\net6.0\RemoteInterface.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGOxygen-Dapr)\lib\net6.0\Oxygen.Mesh.Dapr.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGOxygen-Dapr)\lib\net6.0\Oxygen.Client.ServerSymbol.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGOxygen-Dapr)\lib\net6.0\Oxygen.Common.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(PKGAutofac)\lib\net5.0\Autofac.dll" IncludeRuntimeDependency="false" />
     </ItemGroup>
   </Target>
