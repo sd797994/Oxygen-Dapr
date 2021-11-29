@@ -13,12 +13,12 @@ namespace Oxygen.Server.Kestrel.Implements
 {
     public class OxygenStartup
     {
-        public virtual void ConfigureServices(IServiceCollection service)
+        public static void ConfigureServices(IServiceCollection service)
         {
             service.AddCors();
             service.AddHostedService<OxygenHostService>();
         }
-        public virtual void Configure(IApplicationBuilder appBuilder, ILifetimeScope lifetimeScope, IServerHandler serverHandler, ISerialize serialize)
+        public static void Configure(IApplicationBuilder appBuilder, IServiceProvider serviceProvider)
         {
             if (DaprConfig.GetCurrent().UseStaticFiles)
                 appBuilder.UseStaticFiles();
@@ -26,7 +26,7 @@ namespace Oxygen.Server.Kestrel.Implements
             {
                 appBuilder.UseCors(x => x.SetIsOriginAllowed(_ => true).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
             }
-            serverHandler.BuildHandler(appBuilder, serialize);
+            serviceProvider.GetService<IServerHandler>().BuildHandler(appBuilder, serviceProvider.GetService<ISerialize>());
         }
     }
 }

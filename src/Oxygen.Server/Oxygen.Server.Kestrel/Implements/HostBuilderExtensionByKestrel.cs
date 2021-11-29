@@ -20,7 +20,7 @@ namespace Oxygen.Server.Kestrel.Implements
         /// </summary>
         /// <param name="webHostBuilder"></param>
         /// <param name="action"></param>
-        public static void StartOxygenServer<Startup>(this IWebHostBuilder webHostBuilder, Action<DaprConfig> action) where Startup : class
+        public static void StartOxygenServer(this IWebHostBuilder webHostBuilder, Action<DaprConfig> action)
         {
             action(DaprConfig.GetCurrent());
             webHostBuilder
@@ -33,7 +33,6 @@ namespace Oxygen.Server.Kestrel.Implements
                 });
             if (DaprConfig.GetCurrent().UseStaticFiles)
                 webHostBuilder.UseContentRoot(Directory.GetCurrentDirectory()).UseWebRoot("wwwroot");
-            webHostBuilder.UseStartup<Startup>();
         }
     }
 }

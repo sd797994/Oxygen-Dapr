@@ -14,15 +14,15 @@ namespace Oxygen.Mesh.Dapr
 {
     public class OxygenActorStartup : OxygenStartup
     {
-        public override void ConfigureServices(IServiceCollection service)
+        public static new void ConfigureServices(IServiceCollection service)
         {
-            base.ConfigureServices(service);
+            OxygenStartup.ConfigureServices(service);
             ActorServiceFactory.RegisterActorService(service);
         }
-        public override void Configure(IApplicationBuilder appBuilder, ILifetimeScope lifetimeScope, IServerHandler serverHandler, ISerialize serialize)
+        public static new void Configure(IApplicationBuilder appBuilder, IServiceProvider serviceProvider)
         {
-            base.Configure(appBuilder, lifetimeScope, serverHandler, serialize);
-            ActorServiceFactory.UseActorService(appBuilder, lifetimeScope);
+            OxygenStartup.Configure(appBuilder, serviceProvider);
+            ActorServiceFactory.UseActorService(appBuilder, serviceProvider.GetService<ILifetimeScope>());
         }
     }
 }

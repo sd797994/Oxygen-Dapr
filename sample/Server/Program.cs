@@ -1,85 +1,68 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Oxygen.Client.ServerSymbol.Events;
 using Oxygen.Common.Implements;
 using Oxygen.IocModule;
 using Oxygen.Mesh.Dapr;
 using Oxygen.ProxyGenerator.Implements;
 using Oxygen.Server.Kestrel.Implements;
 using RemoteInterface;
-using System;
+using Server;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Server
+var builder = WebApplication.CreateBuilder();
+builder.WebHost.StartOxygenServer(config =>
 {
-    class Program
-    {
-        static async Task Main(string[] args)
-        {
-            await CreateDefaultHost(args).Build().RunAsync();
-        }
-        static IHostBuilder CreateDefaultHost(string[] args) => new HostBuilder()
-            .ConfigureWebHostDefaults(webhostbuilder => {
-                //注册成为oxygen服务节点
-                webhostbuilder.StartOxygenServer<OxygenActorStartup>((config) => {
-                    config.Port = 80;
-                    config.PubSubCompentName = "pubsub";
-                    config.StateStoreCompentName = "statestore";
-                    config.TracingHeaders = "Authentication";
-                });
-            })
-            .ConfigureContainer<ContainerBuilder>(builder =>
-            {
-                //注入oxygen依赖
-                builder.RegisterOxygenModule();
-                //注入测试demo
-                builder.RegisterType<HelloServiceImpl>().As<IHelloService>().InstancePerLifetimeScope();
-                builder.RegisterType<HelloEventHandler>().As<HelloEventHandler>().InstancePerLifetimeScope();
-            })
-            .ConfigureLogging((hostingContext, logging) => {
-                logging.AddConsole();
-            })
-            .ConfigureServices((context, services) =>
-            {
-                //注册全局拦截器
-                LocalMethodAopProvider.RegisterPipelineHandler((methodctx) => {
-                    HttpContextCurrent.SetCurrent(methodctx);
-                },async (obj, methodctx) =>
-                {
-                    if (obj != null)
-                        Console.WriteLine($"这里是方法前拦截器，拦截到参数：{JsonSerializer.Serialize(obj)}");
-                    await Task.CompletedTask;
-                    var s = HttpContextCurrent.GetCurrent();
+    config.Port = 80;
+    config.PubSubCompentName = "pubsub";
+    config.StateStoreCompentName = "statestore";
+    config.TracingHeaders = "Authentication";
+});
+OxygenActorStartup.ConfigureServices(builder.Services);
+builder.Host.ConfigureContainer<ContainerBuilder>(builder =>
+{
+    //注入oxygen依赖
+    builder.RegisterOxygenModule();
+    //注入测试demo
+    builder.RegisterType<HelloServiceImpl>().As<IHelloService>().InstancePerLifetimeScope();
+    builder.RegisterType<HelloEventHandler>().As<HelloEventHandler>().InstancePerLifetimeScope();
+});
+builder.Services.AddAutofac();
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+//注册全局拦截器
+LocalMethodAopProvider.RegisterPipelineHandler((methodctx) => {
+    HttpContextCurrent.SetCurrent(methodctx);
+}, async (obj, methodctx) =>
+{
+    if (obj != null)
+        Console.WriteLine($"这里是方法前拦截器，拦截到参数：{JsonSerializer.Serialize(obj)}");
+    await Task.CompletedTask;
+    var s = HttpContextCurrent.GetCurrent();
 
-                }, async (result) =>
-                {
-                    Console.WriteLine($"这里是方法后拦截器，拦截到方法结果：{JsonSerializer.Serialize(result)}");
-                    var s = HttpContextCurrent.GetCurrent();
-                    await Task.CompletedTask;
-                }, async (exp) =>
-                {
-                    Console.WriteLine($"这里是方法异常拦截器，拦截到异常：{exp.Message}");
-                    return await Task.FromResult(new { Message = exp.Message });
-                });
-                services.AddAutofac();
-            })
-            .UseServiceProviderFactory(new AutofacServiceProviderFactory());
-    }
-    public static class HttpContextCurrent
+}, async (result) =>
+{
+    Console.WriteLine($"这里是方法后拦截器，拦截到方法结果：{JsonSerializer.Serialize(result)}");
+    var s = HttpContextCurrent.GetCurrent();
+    await Task.CompletedTask;
+}, async (exp) =>
+{
+    Console.WriteLine($"这里是方法异常拦截器，拦截到异常：{exp.Message}");
+    return await Task.FromResult(new { Message = exp.Message });
+});
+var app = builder.Build();
+OxygenActorStartup.Configure(app, app.Services);
+await app.RunAsync();
+public static class HttpContextCurrent
+{
+    private static AsyncLocal<OxygenHttpContextWapper> currentcontext = new AsyncLocal<OxygenHttpContextWapper>();
+    internal static void SetCurrent(OxygenHttpContextWapper httpContextWapper)
     {
-        private static AsyncLocal<OxygenHttpContextWapper> currentcontext = new AsyncLocal<OxygenHttpContextWapper>();
-        internal static void SetCurrent(OxygenHttpContextWapper httpContextWapper)
-        {
-            if (currentcontext.Value == null)
-                currentcontext.Value = httpContextWapper;
-        }
-        internal static OxygenHttpContextWapper GetCurrent()
-        {
-            return currentcontext.Value;
-        }
+        if (currentcontext.Value == null)
+            currentcontext.Value = httpContextWapper;
+    }
+    internal static OxygenHttpContextWapper GetCurrent()
+    {
+        return currentcontext.Value;
     }
 }
