@@ -12,18 +12,23 @@ using System.Threading.Tasks;
 
 namespace Oxygen.Server.Kestrel.Implements
 {
-    public static class HostBuilderExtensionByKestrel
+    public static class OxygenApplication
     {
-
         /// <summary>
         /// 注入web服务
         /// </summary>
         /// <param name="webHostBuilder"></param>
         /// <param name="action"></param>
-        public static void StartOxygenServer(this IWebHostBuilder webHostBuilder, Action<DaprConfig> action)
+        public static WebApplicationBuilder CreateBuilder(Action<DaprConfig> action)
         {
             action(DaprConfig.GetCurrent());
-            webHostBuilder
+            var option = new WebApplicationOptions()
+            {
+                ContentRootPath = Directory.GetCurrentDirectory(),
+                WebRootPath = "wwwroot"
+            };
+            var webHostBuilder =DaprConfig.GetCurrent().UseStaticFiles ? WebApplication.CreateBuilder() : WebApplication.CreateBuilder(option);
+            webHostBuilder.WebHost
                 .UseKestrel(options => //重写ConfigureWebHostDefaults中Kestrel配置
                 {
                     options.Listen(IPAddress.Any, DaprConfig.GetCurrent().Port, listenOptions =>
@@ -31,8 +36,7 @@ namespace Oxygen.Server.Kestrel.Implements
                         listenOptions.Protocols = HttpProtocols.Http1;
                     });
                 });
-            if (DaprConfig.GetCurrent().UseStaticFiles)
-                webHostBuilder.UseContentRoot(Directory.GetCurrentDirectory()).UseWebRoot("wwwroot");
+            return webHostBuilder;
         }
     }
 }

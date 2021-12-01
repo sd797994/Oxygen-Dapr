@@ -8,7 +8,6 @@
     <PackageReference Include="Autofac" Version="6.3.0" />
     <PackageReference Include="MessagePack" Version="2.3.85" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.12" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
   </ItemGroup>

@@ -11,8 +11,7 @@ using RemoteInterface;
 using Server;
 using System.Text.Json;
 
-var builder = WebApplication.CreateBuilder();
-builder.WebHost.StartOxygenServer(config =>
+var builder = OxygenApplication.CreateBuilder(config =>
 {
     config.Port = 80;
     config.PubSubCompentName = "pubsub";

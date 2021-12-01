@@ -2,15 +2,13 @@
 using Autofac.Extensions.DependencyInjection;
 using ClienActorSample;
 using Client;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Oxygen.IocModule;
 using Oxygen.Mesh.Dapr;
 using Oxygen.Server.Kestrel.Implements;
 using RemoteInterface;
 
-var builder = WebApplication.CreateBuilder();
-builder.WebHost.StartOxygenServer(config =>
+var builder = OxygenApplication.CreateBuilder(config =>
 {
     config.Port = 80;
     config.PubSubCompentName = "pubsub";
