@@ -1,7 +1,9 @@
 ﻿using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 using Oxygen.Common.Implements;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -50,7 +52,7 @@ namespace Oxygen.ProxyGenerator.Implements
                     ContextRegister(wapper);
                 if (BeforeFunc != null)
                     await BeforeFunc(param, wapper);
-                result = await method(scope.Resolve<Tobj>(), param);
+                result = await method(scope.Resolve<IServiceProvider>().GetServices<Tobj>().FirstOrDefault(), param);
                 if (AfterFunc != null)
                     await AfterFunc(result);
                 return result;
@@ -72,7 +74,7 @@ namespace Oxygen.ProxyGenerator.Implements
                     ContextRegister(wapper);
                 if (BeforeFunc != null)
                     await BeforeFunc(null, wapper);
-                result = await method(scope.Resolve<Tobj>());
+                result = await method(scope.Resolve<IServiceProvider>().GetServices<Tobj>().FirstOrDefault());
                 if (AfterFunc != null)
                     await AfterFunc(result);
                 return result;
