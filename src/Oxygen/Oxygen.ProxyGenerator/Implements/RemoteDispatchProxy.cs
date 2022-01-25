@@ -49,7 +49,7 @@ namespace Oxygen.ProxyGenerator.Implements
                         RouterName = funcAttr.FuncType == FuncType.Actor ? $"/{x.Name}" : $"/{routerName}/{x.Name}".ToLower(),
                         InputType = x.GetParameters().FirstOrDefault()?.ParameterType,
                         SendType = funcAttr.FuncType == FuncType.Invoke ? SendType.invoke : funcAttr.FuncType == FuncType.Actor ? SendType.actors : SendType.invoke,
-                        MethodInfo = typeof(IRemoteMessageSender).GetMethod("SendMessage").MakeGenericMethod(x.ReturnParameter.ParameterType.GenericTypeArguments[0]),
+                        MethodInfo = typeof(IRemoteMessageSender).GetMethod("SendMessage", new Type[] { typeof(string), typeof(string), typeof(object), typeof(SendType) }).MakeGenericMethod(x.ReturnParameter.ParameterType.GenericTypeArguments[0]),
                     });
                 }
             });

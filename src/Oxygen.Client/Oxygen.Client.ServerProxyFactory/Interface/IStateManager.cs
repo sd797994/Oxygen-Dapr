@@ -13,5 +13,6 @@ namespace Oxygen.Client.ServerProxyFactory.Interface
         Task<DefaultResponse> SetState(StateStore input);
         Task<DefaultResponse> DelState(StateStore input);
         Task<T> GetState<T>(StateStore input) where T : new();
+        Task<object> GetState(StateStore input, Type type);
     }
 }

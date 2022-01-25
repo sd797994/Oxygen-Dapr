@@ -141,6 +141,13 @@ namespace Oxygen.ProxyGenerator.Implements
             else
                 return serialize.DeserializesJson<T>(Encoding.UTF8.GetString(data));
         }
+        internal object? ReceiveMessage(SendType sendType, byte[] data, Type type)
+        {
+            if (sendType == SendType.invoke)
+                return serialize.Deserializes(type, data) ?? null;
+            else
+                return serialize.DeserializesJson(type, Encoding.UTF8.GetString(data));
+        }
         internal void AddTraceHeader(HttpRequestMessage httpRequest)
         {
             if (!string.IsNullOrEmpty(DaprConfig.GetCurrent().TracingHeaders))
@@ -154,6 +161,34 @@ namespace Oxygen.ProxyGenerator.Implements
                     }
                 }
             }
+        }
+
+        public async Task<object> SendMessage(string hostName, string serverName, object input, SendType sendType, Type type)
+        {
+            object result = default;
+            if (await ReadylessCheck())
+            {
+                try
+                {
+                    var sendMessage = BuildMessage(hostName, serverName, input, sendType);
+                    var responseMessage = await HttpClient.Value.SendAsync(sendMessage);
+                    if (responseMessage.IsSuccessStatusCode)
+                    {
+                        if (sendType == SendType.publish || sendType == SendType.setState || sendType == SendType.delState)
+                            return new object();//事件和状态操作只要返回200代表发送成功
+                        return ReceiveMessage(sendType, await responseMessage.Content.ReadAsByteArrayAsync(), type);
+                    }
+                    else
+                    {
+                        logger.LogError($"客户端调用http请求异常,状态码：{responseMessage?.StatusCode},请求内容:{sendMessage}，回调内容:{await responseMessage.Content.ReadAsStringAsync()}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.LogError($"客户端调用异常：{e.Message},接口地址：{serverName},调用堆栈{e.StackTrace}");
+                }
+            }
+            return result;
         }
     }
 }
