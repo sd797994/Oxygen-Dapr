@@ -28,6 +28,9 @@ spec:
         - name: web
           image: oxygen-dapr-sample-client:latest
           imagePullPolicy: Never
+          env:
+          - name: Logging__Console__FormatterName
+            value: "" 
           ports:
             - containerPort: 80
 ---
@@ -60,6 +63,9 @@ spec:
       containers:
         - name: web
           image: oxygen-dapr-sample-server:latest
+          env:
+          - name: Logging__Console__FormatterName
+            value: "" 
           imagePullPolicy: Never
           ports:
             - containerPort: 80

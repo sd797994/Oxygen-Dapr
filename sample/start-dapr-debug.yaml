@@ -29,6 +29,9 @@ spec:
         - name: web
           image: oxygen-dapr-sample-client:debug
           imagePullPolicy: Never
+          env:
+          - name: Logging__Console__FormatterName
+            value: "" 
           ports:
             - containerPort: 80
           volumeMounts:
@@ -74,6 +77,9 @@ spec:
         - name: web
           image: oxygen-dapr-sample-server:debug
           imagePullPolicy: Never
+          env:
+          - name: Logging__Console__FormatterName
+            value: "" 
           ports:
             - containerPort: 80
           volumeMounts:

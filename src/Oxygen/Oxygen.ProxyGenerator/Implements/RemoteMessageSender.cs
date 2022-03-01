@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Oxygen.ProxyGenerator.Implements
@@ -34,9 +35,10 @@ namespace Oxygen.ProxyGenerator.Implements
         static bool Readyless = false;
         async Task<bool> ReadylessCheck()
         {
+            int reTry = 0;
             if (!Readyless)
             {
-                while (true)
+                while (reTry < 3)
                 {
                     try
                     {
@@ -52,9 +54,10 @@ namespace Oxygen.ProxyGenerator.Implements
                     }
                     catch (Exception e)
                     {
-                        logger.LogWarn($"Dapr尚未准备就绪,{e.Message}");
-                        await Task.Delay(100);
+                        logger.LogError($"Dapr尚未准备就绪,{e.Message}");
+                        break;
                     }
+                    finally { Interlocked.Increment(ref reTry); }
                 }
             }
             return Readyless;
