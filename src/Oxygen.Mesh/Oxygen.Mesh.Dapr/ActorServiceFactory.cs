@@ -19,8 +19,8 @@ namespace Oxygen.Mesh.Dapr
 {
     public class ActorServiceFactory
     {
-        static ILifetimeScope _lifetimeScope;
-        static MethodInfo daprRegisterMethodInfo = typeof(ActorRegistrationCollection).GetMethod("RegisterActor");
+        static ILifetimeScope _lifetimeScope = null;
+        static MethodInfo daprRegisterMethodInfo = typeof(ActorRegistrationCollection).GetMethod("RegisterActor", new Type[] { typeof(Action<ActorRegistration>) });
         public static void UseActorService(IApplicationBuilder appBuilder, ILifetimeScope lifetimeScope)
         {
             if (lifetimeScope != null)
