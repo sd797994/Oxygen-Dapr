@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.IO;
 using Oxygen.Client.ServerSymbol.Events;
 using Oxygen.Common.Interface;
 using Oxygen.Server.Kestrel.Interface;
@@ -15,6 +16,7 @@ namespace Oxygen.Server.Kestrel.Implements
 {
     internal class HttpMessageHandler : IMessageHandler
     {
+        private static readonly RecyclableMemoryStreamManager manager = new RecyclableMemoryStreamManager();
         private readonly ISerialize serialize;
         public HttpMessageHandler(ISerialize serialize)
         {
@@ -34,7 +36,7 @@ namespace Oxygen.Server.Kestrel.Implements
 
         public async Task<T> ParseMessage<T>(HttpContext message, MessageType messageType) where T : class, new()
         {
-            using (var buffer = new MemoryStream())
+            using (var buffer = manager.GetStream())
             {
                 await message.Request.Body.CopyToAsync(buffer);
                 byte[] bytes = buffer.ToArray();
