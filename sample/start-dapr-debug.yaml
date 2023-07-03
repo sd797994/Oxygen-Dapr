@@ -23,7 +23,6 @@ spec:
         dapr.io/enabled: "true"
         dapr.io/app-id: "callservice"
         dapr.io/app-port: "80"
-        dapr.io/config: "sentinelconfig"
     spec:
       containers:
         - name: web
@@ -138,40 +137,3 @@ spec:
             name: oxygen-dapr-sample-client
             port:
               number: 80
----
-apiVersion: dapr.io/v1alpha1
-kind: Component
-metadata:
-  name: sentinel
-  namespace: default
-spec:
-  type: middleware.http.sentinel
-  version: v1
-  metadata:
-  - name: appName
-    value: "rules"
-  - name: logDir
-    value: "/tmp"
-  - name: circuitBreakerRules
-    value: >-
-      [
-        {
-          "resource": "POST:/v1.0/invoke/callservice/method/call/callmyself",
-          "threshold": 1,
-          "strategy": 2,
-          "minRequestAmount": 0,
-          "statIntervalMs": 10000,
-          "retryTimeoutMs": 60000
-        }
-      ]
----
-apiVersion: dapr.io/v1alpha1
-kind: Configuration
-metadata:
-  name: sentinelconfig
-  namespace: default
-spec:
-  httpPipeline:
-    handlers:
-      - name: sentinel
-        type: middleware.http.sentinel

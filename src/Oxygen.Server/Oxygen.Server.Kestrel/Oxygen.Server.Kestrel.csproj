@@ -10,10 +10,9 @@
     <ProjectReference Include="..\..\Oxygen\Oxygen.ProxyGenerator\Oxygen.ProxyGenerator.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dapr.Actors.AspNetCore" Version="1.11.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.1" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.3.2" />
   </ItemGroup>
 </Project>
