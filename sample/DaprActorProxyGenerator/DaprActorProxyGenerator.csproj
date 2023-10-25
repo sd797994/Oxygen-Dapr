@@ -6,10 +6,10 @@
   </PropertyGroup>
   <ItemGroup>
     <!--必须引入CodeAnalysis-->
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.6.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
     <!--引入Oxygen和Autofac用于编译时在Target指向nuget包位置查询dll-->
-    <PackageReference Include="Autofac" Version="7.0.1" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Oxygen-Dapr" Version="0.3.6" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Autofac" Version="7.1.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Oxygen-Dapr" Version="0.4.0" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ClienActorSample\ClienActorSample.csproj" />
